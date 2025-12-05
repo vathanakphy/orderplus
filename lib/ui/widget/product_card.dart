@@ -1,0 +1,133 @@
+import 'package:flutter/material.dart';
+
+class ProductCard extends StatelessWidget {
+  final String title;
+  final double price;
+  final String imageAssetPath;
+  final VoidCallback? onAddTap;
+
+  const ProductCard({
+    super.key,
+    required this.title,
+    required this.price,
+    required this.imageAssetPath,
+    this.onAddTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    const Color priceColor = Color(0xFF8D6E63);
+    const Color titleColor = Color(0xFF1D1B20);
+    const Color buttonColor = Color(0xFFE86A12);
+
+    return Container(
+      height: 200,
+      width: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Image section (full width)
+          Stack(
+            children: [
+              ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
+                ),
+                child: SizedBox(
+                  height: 120,
+                  width: double.infinity,
+                  child: FittedBox(
+                    child: Image.asset(
+                      imageAssetPath,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          height: 140,
+                          color: Colors.grey[200],
+                          child: const Icon(Icons.fastfood, color: Colors.grey),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: 8,
+                right: 8,
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: onAddTap,
+                    borderRadius: BorderRadius.circular(24),
+                    child: Container(
+                      height: 36,
+                      width: 36,
+                      decoration: BoxDecoration(
+                        color: buttonColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: buttonColor,
+                            blurRadius: 6,
+                            offset: const Offset(2, 3),
+                          ),
+                        ],
+                      ),
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          // Text section
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min, 
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: titleColor,
+                    letterSpacing: -0.5,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "\$${price.toStringAsFixed(2)}",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: priceColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
