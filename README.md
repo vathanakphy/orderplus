@@ -1,16 +1,39 @@
-# orderplus
+# OrderPlus
 
-A new Flutter project.
+A mobile app for small restaurants to manage orders, payments, and store data offline. 
 
-## Getting Started
+## Screens
 
-This project is a starting point for a Flutter application.
+### Welcome Screen
+- Introduction screen with logo and start button.
 
-A few resources to get you started if this is your first Flutter project:
+### Home 
+- Quick summary of total, pending, and unpaid orders.
+- Buttons: Add Order, View Queue, Manage Menu, Income.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### Menu Management
+- List of menu items with edit/delete options.
+- Add new item form (name, price, category).
+- Search bar to find items.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### Add/Edit Menu Item
+- Form to add or update menu items.
+
+### Take Order
+- Select menu items, input quantity/notes.
+- Total price calculated automatically.
+- Submit adds order to queue.
+
+### Order Queue
+- Shows active orders with ID, items, status, and payment info.
+- Update status or mark as paid.
+
+### Payment 
+- Filter by Paid/Unpaid or status.
+- Toggle payment status.
+- Visual cues for order state.
+
+### Income
+- Displays store metrics and income.
+- Optional charts for revenue tracking.
+
