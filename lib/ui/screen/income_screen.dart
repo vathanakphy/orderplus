@@ -17,7 +17,7 @@ class _IncomeScreenState extends State<IncomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+body: SafeArea(
         bottom: false,
         child: Column(
           children: [

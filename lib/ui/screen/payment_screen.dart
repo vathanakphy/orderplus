@@ -51,7 +51,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
+body: SafeArea(
         child: Column(
           children: [
             Padding(

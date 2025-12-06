@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/ui/screen/add_item_screen.dart';
 import 'package:orderplus/ui/widget/product_infor.dart';
 import 'package:orderplus/ui/widget/search_bar.dart';
 
@@ -7,9 +8,7 @@ class MenuScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-      backgroundColor: Colors.white,
       body: SafeArea(
         child: ListView(
           children: [
@@ -59,22 +58,37 @@ class MenuScreen extends StatelessWidget {
         ),
       ),
       
-      floatingActionButton: SizedBox(
-        width: 65,
-        height: 65,
-        child: FloatingActionButton(
-          onPressed: () {
-            // Handle Add New Item
-          },
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          shape: const CircleBorder(),
-          elevation: 4,
-          child: const Icon(
-            Icons.add,
-            color: Colors.white,
-            size: 32,
-          ),
-        ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (context) => DraggableScrollableSheet(
+              expand: false,
+              initialChildSize: 0.95,
+              minChildSize: 0.5,
+              maxChildSize: 1,
+              builder: (context, scrollController) {
+                return Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                  ),
+                  child: SingleChildScrollView(
+                    controller: scrollController,
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: AddItemScreen(), 
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        child: const Icon(Icons.add, color: Colors.white, size: 32),
       ),
     );
   }

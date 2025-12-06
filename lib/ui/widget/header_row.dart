@@ -5,7 +5,7 @@ class HeaderRow extends StatelessWidget {
   final String title;
   final IconData rightIcon;
   final VoidCallback onRightIconPressed;
-  final VoidCallback onLeftIconPressed;
+  final VoidCallback? onLeftIconPressed;
 
   const HeaderRow({
     super.key,
@@ -13,7 +13,7 @@ class HeaderRow extends StatelessWidget {
     required this.title,
     required this.rightIcon,
     required this.onRightIconPressed,
-    required this.onLeftIconPressed,
+    this.onLeftIconPressed,
   });
 
   @override
@@ -21,10 +21,9 @@ class HeaderRow extends StatelessWidget {
     return Row(
       children: [
         IconButton(
-          icon: Icon(leftIcon, size: 36, color: Colors.black54),
-          onPressed: onLeftIconPressed,
+          icon: Icon(leftIcon, size: 32, color: Colors.black),
+          onPressed: onLeftIconPressed ?? () => Navigator.pop(context),
         ),
-        const SizedBox(width: 16),
         Expanded(
           child: Text(
             title,
@@ -37,7 +36,7 @@ class HeaderRow extends StatelessWidget {
           ),
         ),
         IconButton(
-          icon: Icon(rightIcon, size: 36, color: Colors.black54),
+          icon: Icon(rightIcon, size: 32, color: Colors.black),
           onPressed: onRightIconPressed,
         ),
       ],

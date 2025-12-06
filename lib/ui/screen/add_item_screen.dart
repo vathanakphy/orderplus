@@ -34,79 +34,79 @@ class _AddItemScreenState extends State<AddItemScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildImageUploadArea(),
-            const SizedBox(height: 25),
-            _buildLabel("Item Name"),
-            _buildTextField(
-              controller: nameController,
-              hintText: "e.g. Classic Burger",
-            ),
-            const SizedBox(height: 20),
-            _buildLabel("Price"),
-            _buildTextField(
-              controller: priceController,
-              hintText: "0.00",
-              prefixIcon: Icons.attach_money,
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 20),
-            _buildLabel("Category"),
-            CategorySelector(
-              categories: categories,
-              selectedCategory: selectedCategory,
-              onCategorySelected: (value) {
-                setState(() => selectedCategory = value);
-              },
-              onAddCategory: (newCat) {
-                setState(() {
-                  categories.add(newCat);
-                  selectedCategory = newCat;
-                });
-              },
-            ),
-            // _buildLabel("Description"),
-            // _buildTextField(
-            //   controller: descriptionController,
-            //   hintText: "Add a short description...",
-            //   maxLines: 4,
-            // ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        IconButton(
+          icon: Icon(Icons.cancel_outlined, size: 32, color: Colors.red),
+          onPressed: () => Navigator.pop(context),
+        ),
+        const SizedBox(height: 10),
+        _buildImageUploadArea(),
+        const SizedBox(height: 25),
+        _buildLabel("Item Name"),
+        _buildTextField(
+          controller: nameController,
+          hintText: "e.g. Classic Burger",
+        ),
+        const SizedBox(height: 20),
+        _buildLabel("Price"),
+        _buildTextField(
+          controller: priceController,
+          hintText: "0.00",
+          prefixIcon: Icons.attach_money,
+          keyboardType: TextInputType.number,
+        ),
+        const SizedBox(height: 20),
+        _buildLabel("Category"),
+        CategorySelector(
+          categories: categories,
+          selectedCategory: selectedCategory,
+          onCategorySelected: (value) {
+            setState(() => selectedCategory = value);
+          },
+          onAddCategory: (newCat) {
+            setState(() {
+              categories.add(newCat);
+              selectedCategory = newCat;
+            });
+          },
+        ),
 
-            const SizedBox(height: 25),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Available",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: labelColor,
-                  ),
-                ),
-                Switch(
-                  value: isAvailable,
-                  onChanged: (val) => setState(() => isAvailable = val),
-                ),
-              ],
+        // _buildLabel("Description"),
+        // _buildTextField(
+        //   controller: descriptionController,
+        //   hintText: "Add a short description...",
+        //   maxLines: 4,
+        // ),
+        const SizedBox(height: 25),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              "Available",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: labelColor,
+              ),
             ),
-            const SizedBox(height: 40),
-            CustomIconButton(
-              text: "Save Item",
-              color: primaryColor,
-              textColor: Colors.white,
-              onPressed: () {
-                // Access controllers here: nameController.text, descriptionController.text, priceController.text
-              },
+            Switch(
+              value: isAvailable,
+              onChanged: (val) => setState(() => isAvailable = val),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 40),
+        CustomIconButton(
+          text: "Save Item",
+          color: primaryColor,
+          textColor: Colors.white,
+          onPressed: () {
+            // Access controllers here: nameController.text, descriptionController.text, priceController.text
+          },
+        ),
+      ],
     );
   }
 

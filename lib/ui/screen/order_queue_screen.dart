@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/ui/widget/order_queue_card.dart';
 
-
 class OrderQueueScreen extends StatefulWidget {
   const OrderQueueScreen({super.key});
 
