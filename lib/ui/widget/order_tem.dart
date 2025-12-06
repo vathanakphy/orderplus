@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class OrderItem extends StatelessWidget {
+class OrderItemBox extends StatelessWidget {
   final String title;
   final double price;
   final int quantity;
@@ -8,7 +8,7 @@ class OrderItem extends StatelessWidget {
   final VoidCallback? onIncrement;
   final VoidCallback? onDecrement;
 
-  const OrderItem({
+  const OrderItemBox({
     super.key,
     required this.title,
     required this.price,
@@ -97,9 +97,7 @@ class OrderItem extends StatelessWidget {
                   ],
                 ),
               ),
-              
               const SizedBox(width: 20),
-
               // Price
               Text(
                 "\$${price.toStringAsFixed(2)}",
