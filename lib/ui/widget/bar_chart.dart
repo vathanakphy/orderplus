@@ -45,7 +45,7 @@ class _BarChartComponentState extends State<BarChartComponent> {
 
   // Auto format price
   String formatPrice(double v) {
-    return "\$${v.toStringAsFixed(2)}";
+    return v.toStringAsFixed(2);
   }
 
   @override
@@ -180,7 +180,6 @@ class _BarChartComponentState extends State<BarChartComponent> {
                                     ),
                                   ),
                                 ),
-
                               // Column with bar + day
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.end,

@@ -1,43 +1,22 @@
 class Product {
-  final String id;
-  final String categoryId; 
   final String name;
   final String description;
   final double price;
   final String imageUrl;
-  final bool isAvailable;
+  final String category;
+  bool _isAvailable;
 
   Product({
-    required this.id,
-    required this.categoryId,
     required this.name,
     required this.description,
     required this.price,
     required this.imageUrl,
-    this.isAvailable = true,
-  });
+    required this.category,
+    bool isAvailable = true,
+  }) : _isAvailable = isAvailable;
 
-  factory Product.fromJson(Map<String, dynamic> json) {
-    return Product(
-      id: json['id'],
-      categoryId: json['categoryId'],
-      name: json['name'],
-      description: json['description'],
-      price: (json['price'] as num).toDouble(), 
-      imageUrl: json['imageUrl'],
-      isAvailable: json['isAvailable'] ?? true,
-    );
-  }
+  bool get isAvailable => _isAvailable;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'categoryId': categoryId,
-      'name': name,
-      'description': description,
-      'price': price,
-      'imageUrl': imageUrl,
-      'isAvailable': isAvailable,
-    };
-  }
+  void markUnavailable() => _isAvailable = false;
+  void markAvailable() => _isAvailable = true;
 }
