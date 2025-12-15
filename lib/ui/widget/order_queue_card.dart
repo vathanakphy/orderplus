@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/model/enum.dart'; // OrderStatus
 import 'package:orderplus/ui/widget/icon_button.dart';
-
-enum OrderStatus { waiting, inProgress, ready, complete }
 
 class ProductQueueCard extends StatelessWidget {
   final String orderNumber;
@@ -18,65 +17,59 @@ class ProductQueueCard extends StatelessWidget {
     required this.timeAgo,
     required this.itemsSummary,
     this.isNew = false,
-    this.status = OrderStatus.waiting,
+    this.status = OrderStatus.queued,
     this.isPaid = true,
     this.onActionTap,
   });
 
   String getStatusText() {
     switch (status) {
-      case OrderStatus.waiting:
-        return "New";
-      case OrderStatus.inProgress:
-        return "In Progress";
-      case OrderStatus.ready:
-        return "Ready";
-      case OrderStatus.complete:
-        return "Complete";
+      case OrderStatus.queued:
+        return "Queued";
+      case OrderStatus.served:
+        return "Served";
+      case OrderStatus.cancelled:
+        return "Cancelled";
     }
   }
 
   Color getBadgeBgColor() {
     switch (status) {
-      case OrderStatus.waiting:
+      case OrderStatus.queued:
         return const Color(0xFFFFCC80);
-      case OrderStatus.inProgress:
-        return const Color(0xFFBBDEFB);
-      case OrderStatus.ready:
+      case OrderStatus.served:
         return const Color(0xFFC8E6C9);
-      case OrderStatus.complete:
+      case OrderStatus.cancelled:
         return const Color(0xFFEEEEEE);
     }
   }
 
   Color getBadgeTextColor() {
     switch (status) {
-      case OrderStatus.waiting:
+      case OrderStatus.queued:
         return const Color(0xFFE65100);
-      case OrderStatus.inProgress:
-        return const Color(0xFF1976D2);
-      case OrderStatus.ready:
+      case OrderStatus.served:
         return const Color(0xFF2E7D32);
-      case OrderStatus.complete:
+      case OrderStatus.cancelled:
         return Colors.grey;
     }
   }
 
   String getButtonText() {
     switch (status) {
-      case OrderStatus.waiting:
-        return "Mark as In Progress";
-      case OrderStatus.inProgress:
-        return "Mark as Ready";
-      case OrderStatus.ready:
-        return "Mark as Completed";
-      case OrderStatus.complete:
+      case OrderStatus.queued:
+        return "Mark as Served";
+      case OrderStatus.served:
         return "Completed";
+      case OrderStatus.cancelled:
+        return "Cancelled";
     }
   }
 
   Color getButtonColor() {
-    if (status == OrderStatus.complete) return Colors.greenAccent.shade700;
+    if (status == OrderStatus.served || status == OrderStatus.cancelled) {
+      return Colors.greenAccent.shade700;
+    }
     return const Color(0xFFE86A12);
   }
 
@@ -135,7 +128,7 @@ class ProductQueueCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        if (isNew && status == OrderStatus.waiting)
+                        if (isNew && status == OrderStatus.queued)
                           Container(
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(
@@ -152,8 +145,8 @@ class ProductQueueCard extends StatelessWidget {
                                   color: Color(0xFFE65100)),
                             ),
                           )
-                        else if (status != OrderStatus.waiting &&
-                            status != OrderStatus.complete)
+                        else if (status != OrderStatus.queued &&
+                            status != OrderStatus.cancelled)
                           Container(
                             margin: const EdgeInsets.only(right: 8),
                             padding: const EdgeInsets.symmetric(
@@ -217,7 +210,10 @@ class ProductQueueCard extends StatelessWidget {
                   height: 48,
                   color: getButtonColor(),
                   textColor: Colors.white,
-                  onPressed: status == OrderStatus.complete ? null : onActionTap,
+                  onPressed: status == OrderStatus.served ||
+                          status == OrderStatus.cancelled
+                      ? null
+                      : onActionTap,
                 ),
               ],
             ),

@@ -18,18 +18,48 @@ class ProductInfoTile extends StatelessWidget {
     this.onDelete,
   });
 
+  static const Color _brownColor = Color(0xFF9C7349);
+  static const Color _titleColor = Color(0xFF1D1B20);
+
+  static const TextStyle _titleStyle = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: _titleColor,
+  );
+
+  static const TextStyle _priceStyle = TextStyle(
+    fontSize: 18,
+    fontWeight: FontWeight.w400,
+    color: _brownColor,
+  );
+
+  Widget get _actionButtons => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.edit_outlined),
+            color: _brownColor,
+            iconSize: 28,
+            onPressed: onEdit,
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            color: _brownColor,
+            iconSize: 28,
+            onPressed: onDelete,
+          ),
+        ],
+      );
+
   @override
   Widget build(BuildContext context) {
-    final Color brownColor = const Color(0xFF9C7349);
-    final Color titleColor = const Color(0xFF1D1B20);
-
     return Container(
-      padding: const EdgeInsets.all(5),
       height: height,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: brownColor, width: 1),
+        border: Border.all(color: _brownColor, width: 1),
       ),
       child: Row(
         children: [
@@ -42,60 +72,26 @@ class ProductInfoTile extends StatelessWidget {
               fit: BoxFit.cover,
             ),
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 12),
           Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          title,
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w400,
-                            color: titleColor,
-                          ),
-                          overflow: TextOverflow.ellipsis, 
-                          maxLines: 1, // single line
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "\$${price.toStringAsFixed(2)}",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: brownColor,
-                          fontWeight: FontWeight.w400,
-                        ),
-                      ),
-                    ],
-                  ),
+                Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: _titleStyle,
                 ),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.edit_outlined),
-                      color: brownColor,
-                      iconSize: 28,
-                      onPressed: onEdit,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      color: brownColor,
-                      iconSize: 28,
-                      onPressed: onDelete,
-                    ),
-                  ],
+                Text(
+                  "\$${price.toStringAsFixed(2)}",
+                  style: _priceStyle,
                 ),
               ],
             ),
           ),
+          _actionButtons,
         ],
       ),
     );

@@ -7,7 +7,8 @@ class ProductService {
   ProductService(this._repository);
 
   List<Product> getAllProducts() => _repository.getAll();
-  List<String> getAllCategories() => _repository.getAllCategories();
+  List<String> getAllCategories() =>
+      ["All", "Top"] + _repository.getAllCategories();
 
   List<Product> getAvailableProducts() =>
       _repository.getAll().where((p) => p.isAvailable).toList();
@@ -26,6 +27,10 @@ class ProductService {
   void markAvailable(Product product) => product.markAvailable();
   void markUnavailable(Product product) => product.markUnavailable();
 
-  Product? getProductByName(String name) =>
-      _repository.getAll().firstWhere((p) => p.name == name);
+  List<Product> searchProducts(String query) {
+    final lowerQuery = query.toLowerCase();
+    return _repository.getAll()
+        .where((p) => p.name.toLowerCase().contains(lowerQuery))
+        .toList();
+  }
 }

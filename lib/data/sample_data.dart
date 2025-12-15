@@ -6,6 +6,7 @@ void seedSampleProducts(ProductRepository repo) {
   const img = 'assets/burgur.png';
 
   final products = <Product>[
+    // Burger category
     Product(
       name: 'Classic Burger',
       description: 'Beef patty, lettuce, tomato, cheese, and sauce.',
@@ -20,61 +21,64 @@ void seedSampleProducts(ProductRepository repo) {
       imageUrl: img,
       category: 'Burger',
     ),
+    // Pizza category
     Product(
-      name: 'Spicy Fire',
-      description: 'Jalapeños, spicy mayo, and pepper jack cheese.',
-      price: 4.79,
+      name: 'Margherita Pizza',
+      description: 'Classic tomato, mozzarella, and basil.',
+      price: 6.99,
       imageUrl: img,
-      category: 'Burger',
+      category: 'Pizza',
     ),
     Product(
-      name: 'BBQ Deluxe',
-      description: 'Smoky BBQ sauce, crispy onions, and cheddar.',
-      price: 4.99,
+      name: 'Pepperoni Pizza',
+      description: 'Pepperoni, cheese, and tomato sauce.',
+      price: 7.49,
       imageUrl: img,
-      category: 'Burger',
+      category: 'Pizza',
     ),
     Product(
-      name: 'Mushroom Swiss',
-      description: 'Sautéed mushrooms with Swiss cheese and aioli.',
-      price: 5.29,
+      name: 'Veggie Delight',
+      description: 'Bell peppers, olives, onions, and mushrooms.',
+      price: 6.79,
       imageUrl: img,
-      category: 'Burger',
+      category: 'Pizza',
+    ),
+    // Drinks category
+    Product(
+      name: 'Cola Drink',
+      description: 'Refreshing carbonated cola.',
+      price: 1.99,
+      imageUrl: img,
+      category: 'Drinks',
     ),
     Product(
-      name: 'Double Stack',
-      description: 'Two patties, double cheese, and special sauce.',
-      price: 5.99,
+      name: 'Lemonade',
+      description: 'Freshly squeezed lemon juice with sugar.',
+      price: 2.49,
       imageUrl: img,
-      category: 'Burger',
+      category: 'Drinks',
     ),
     Product(
-      name: 'Veggie Crunch',
-      description: 'Grilled veggie patty with fresh greens.',
-      price: 4.29,
+      name: 'Iced Tea',
+      description: 'Cool and refreshing iced tea.',
+      price: 2.29,
       imageUrl: img,
-      category: 'Burger',
+      category: 'Drinks',
+    ),
+    // Dessert category
+    Product(
+      name: 'Chocolate Cake',
+      description: 'Rich chocolate cake with cream frosting.',
+      price: 3.99,
+      imageUrl: img,
+      category: 'Dessert',
     ),
     Product(
-      name: 'Bacon Supreme',
-      description: 'Crispy bacon, cheddar, and smoky sauce.',
-      price: 5.49,
+      name: 'Ice Cream Sundae',
+      description: 'Vanilla ice cream with chocolate sauce and cherry.',
+      price: 4.49,
       imageUrl: img,
-      category: 'Burger',
-    ),
-    Product(
-      name: 'Hawaiian Twist',
-      description: 'Grilled pineapple, teriyaki glaze, and lettuce.',
-      price: 4.89,
-      imageUrl: img,
-      category: 'Burger',
-    ),
-    Product(
-      name: 'Garlic Butter',
-      description: 'Garlic butter glaze with parmesan sprinkle.',
-      price: 4.69,
-      imageUrl: img,
-      category: 'Burger',
+      category: 'Dessert',
     ),
   ];
 

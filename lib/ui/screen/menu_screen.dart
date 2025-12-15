@@ -15,15 +15,14 @@ class MenuScreen extends StatelessWidget {
             const SizedBox(height: 20),
             SearchBarComponent(
               hintText: "Search for a menu item...",
-              onChanged: (value) {
-              },
+              onChanged: (value) {},
             ),
             const SizedBox(height: 25),
             _buildSectionHeader("Mains"),
             ProductInfoTile(
               title: "Classic Cheeseburger",
               price: 12.99,
-              imageUrl: "assets/burgur.png", 
+              imageUrl: "assets/burgur.png",
               onEdit: () {},
               onDelete: () {},
             ),
@@ -53,11 +52,32 @@ class MenuScreen extends StatelessWidget {
               onEdit: () {},
               onDelete: () {},
             ),
-            const SizedBox(height: 80), 
+            ProductInfoTile(
+              title: "Chocolate Lava Cake",
+              price: 9.75,
+              imageUrl: "assets/burgur.png",
+              onEdit: () {},
+              onDelete: () {},
+            ),
+            ProductInfoTile(
+              title: "Chocolate Lava Cake",
+              price: 9.75,
+              imageUrl: "assets/burgur.png",
+              onEdit: () {},
+              onDelete: () {},
+            ),
+            ProductInfoTile(
+              title: "Chocolate Lava Cake",
+              price: 9.75,
+              imageUrl: "assets/burgur.png",
+              onEdit: () {},
+              onDelete: () {},
+            ),
+            const SizedBox(height: 80),
           ],
         ),
       ),
-      
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           showModalBottomSheet(
@@ -73,13 +93,15 @@ class MenuScreen extends StatelessWidget {
                 return Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
                   ),
                   child: SingleChildScrollView(
                     controller: scrollController,
                     child: Padding(
                       padding: const EdgeInsets.all(20),
-                      child: AddItemScreen(), 
+                      child: AddItemScreen(),
                     ),
                   ),
                 );
@@ -101,7 +123,7 @@ class MenuScreen extends StatelessWidget {
         style: const TextStyle(
           fontSize: 20,
           fontWeight: FontWeight.bold,
-          color: Color(0xFF2D2D2D), 
+          color: Color(0xFF2D2D2D),
         ),
       ),
     );

@@ -9,6 +9,7 @@ import 'package:orderplus/ui/screen/home_screen.dart';
 import 'package:orderplus/ui/screen/income_screen.dart';
 import 'package:orderplus/ui/screen/menu_screen.dart';
 import 'package:orderplus/ui/screen/order_queue_screen.dart';
+import 'package:orderplus/ui/screen/order_screen.dart';
 import 'package:orderplus/ui/screen/payment_screen.dart';
 import 'package:orderplus/ui/widget/screen_wrapper.dart';
 
@@ -21,7 +22,6 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     final orderRepo = OrderRepository()
       ..addTables(List<int>.generate(20, (i) => i + 1));
 
@@ -72,8 +72,11 @@ class MyApp extends StatelessWidget {
             leftIcon: Icons.arrow_back_ios,
             child: OrderQueueScreen(),
           ),
-          '/add-order': (context) =>
-              const Scaffold(body: Center(child: Text("Add Order Screen"))),
+          '/add-order': (context) => const ScreenWrapper(
+            title: 'OrdersPlus',
+            leftIcon: Icons.arrow_back_ios,
+            child: OrderScreen(),
+          ),
         },
       ),
     );

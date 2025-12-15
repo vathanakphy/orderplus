@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/model/enum.dart';
+import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/ui/widget/order_queue_card.dart';
+import 'package:orderplus/app_dependencies.dart';
 
 class OrderQueueScreen extends StatefulWidget {
   const OrderQueueScreen({super.key});
@@ -9,38 +12,12 @@ class OrderQueueScreen extends StatefulWidget {
 }
 
 class _OrderQueueScreenState extends State<OrderQueueScreen> {
-  // Orders with actual DateTime
-  List<Map<String, dynamic>> orders = [
-    {
-      "id": "1022",
-      "time": DateTime.now().subtract(const Duration(minutes: 12)),
-      "items": "1x Salad, 1x Water",
-      "status": OrderStatus.ready,
-      "isNew": false,
-      "isPaid": true,
-    },
-    {
-      "id": "1023",
-      "time": DateTime.now().subtract(const Duration(minutes: 8)),
-      "items": "1x Pizza, 1x Coke",
-      "status": OrderStatus.inProgress,
-      "isNew": false,
-      "isPaid": false,
-    },
-    {
-      "id": "1024",
-      "time": DateTime.now().subtract(const Duration(minutes: 2)),
-      "items": "2x Burger, 1x Fries",
-      "status": OrderStatus.waiting,
-      "isNew": true,
-      "isPaid": true,
-    },
-  ];
+  late OrderService _orderService;
 
   @override
-  void initState() {
-    super.initState();
-    orders.sort((a, b) => a['time'].compareTo(b['time']));
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _orderService = AppDependencies.of(context).orderService;
   }
 
   String formatTimeAgo(DateTime time) {
@@ -53,6 +30,11 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final orders = _orderService.getAllOrders()
+        .where((o) => o.status != OrderStatus.cancelled)
+        .toList()
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
     return Scaffold(
       body: ListView.separated(
         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -60,21 +42,21 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
         separatorBuilder: (context, index) => const SizedBox(height: 15),
         itemBuilder: (context, index) {
           final order = orders[index];
+          final itemsSummary = order.items
+              .map((i) => "${i.quantity}x ${i.product.name}")
+              .join(", ");
+
           return ProductQueueCard(
-            orderNumber: order["id"],
-            timeAgo: formatTimeAgo(order["time"]),
-            itemsSummary: order["items"],
-            isNew: order["isNew"],
-            status: order["status"],
-            isPaid: order["isPaid"],
+            orderNumber: order.hashCode.toString(),
+            timeAgo: formatTimeAgo(order.createdAt),
+            itemsSummary: itemsSummary,
+            isNew: order.status == OrderStatus.queued,
+            status: order.status,
+            isPaid: order.isPaid,
             onActionTap: () {
               setState(() {
-                if (order["status"] == OrderStatus.waiting) {
-                  order["status"] = OrderStatus.inProgress;
-                } else if (order["status"] == OrderStatus.inProgress) {
-                  order["status"] = OrderStatus.ready;
-                } else if (order["status"] == OrderStatus.ready) {
-                  order["status"] = OrderStatus.complete;
+                if (order.status == OrderStatus.queued) {
+                  order.markServed();
                 }
               });
             },
