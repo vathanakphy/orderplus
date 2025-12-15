@@ -45,7 +45,7 @@ class OrderService {
       _repository.getAllOrders().where((o) => o.status == status).toList();
 
   List<Order> getOrdersByPaymentStatus(PaymentStatus status) =>
-      _repository.getAllOrders().where((o) => o.paymentStatus == status).toList();
+      _repository.getAllOrders().where((o) => o.paymentStatus == status && o.status==OrderStatus.served).toList();
 
   List<Order> getOrdersByTable(int tableNumber) =>
       _repository.getAllOrders().where((o) => o.tableNumber == tableNumber).toList();

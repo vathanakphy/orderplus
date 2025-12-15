@@ -27,7 +27,8 @@ class MyApp extends StatelessWidget {
 
     final productRepo = ProductRepository();
     seedSampleProducts(productRepo);
-
+    seedSampleOrders(orderRepo, productRepo.getAll());
+    
     return AppDependencies(
       orderRepository: orderRepo,
       productRepository: productRepo,

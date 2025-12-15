@@ -1,4 +1,6 @@
+import 'package:orderplus/data/order_repository.dart';
 import 'package:orderplus/data/product_repository.dart';
+import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/product.dart';
 
 void seedSampleProducts(ProductRepository repo) {
@@ -86,4 +88,31 @@ void seedSampleProducts(ProductRepository repo) {
     repo.add(p);
     repo.addCategory(p.category);
   }
+}
+
+void seedSampleOrders(OrderRepository repo, List<Product> products) {
+  // Add tables
+  repo.addTables([1, 2, 3, 4, 5]);
+
+  // Sample Order 1 - Table 1
+  final order1 = Order(tableNumber: 1);
+  order1.addItem(products.firstWhere((p) => p.name == 'Classic Burger'), 2);
+  order1.addItem(products.firstWhere((p) => p.name == 'Cola Drink'), 2);
+
+  // Sample Order 2 - Table 2
+  final order2 = Order(tableNumber: 2);
+  order2.addItem(products.firstWhere((p) => p.name == 'Margherita Pizza'), 1);
+  order2.addItem(products.firstWhere((p) => p.name == 'Lemonade'), 1);
+
+  // Sample Order 3 - Table 3 (already paid)
+  final order3 = Order(tableNumber: 3);
+  order3.addItem(products.firstWhere((p) => p.name == 'Pepperoni Pizza'), 1);
+  order3.addItem(products.firstWhere((p) => p.name == 'Iced Tea'), 2);
+  order3.markPaid();
+  order3.markServed();
+
+  // Add orders to repository
+  repo.addOrder(order1);
+  repo.addOrder(order2);
+  repo.addOrder(order3);
 }
