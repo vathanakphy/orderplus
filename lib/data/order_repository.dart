@@ -11,7 +11,7 @@ class OrderRepository {
 
   void removeOrder(Order order) => _orders.remove(order);
 
-  List<Order> getAllOrders() => List.unmodifiable(_orders);
+  List<Order> get orders => _orders;
 
-  List<int> getAllTables() => List.unmodifiable(_tables);
+  List<int> get tables => _tables;
 }

@@ -12,8 +12,8 @@ class ProductRepository {
     _products.remove(product);
   }
 
-  List<Product> getAll() => List.unmodifiable(_products);
-  List<String> getAllCategories() => List.unmodifiable(_categories);
+  List<Product> get products => _products;
+  List<String> get categories => _categories;
 
   addCategory(String category) {
     if (!_categories.contains(category)) {

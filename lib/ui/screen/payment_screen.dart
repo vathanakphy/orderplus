@@ -1,58 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:orderplus/app_dependencies.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/service/order_service.dart';
+import 'package:orderplus/providers.dart';
 import 'package:orderplus/ui/widget/order_payment_card.dart';
 import 'package:orderplus/ui/widget/payment_detail.dart';
 import 'package:orderplus/ui/widget/search_bar.dart';
 import 'package:orderplus/ui/widget/selection_bar.dart';
 
-class PaymentScreen extends StatefulWidget {
+class PaymentScreen extends ConsumerStatefulWidget {
   const PaymentScreen({super.key});
 
   @override
-  State<PaymentScreen> createState() => _PaymentScreenState();
+  ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends State<PaymentScreen> {
-  /// null = All
-  /// PaymentStatus.unpaid = Unpaid
-  /// PaymentStatus.paid = Paid
+class _PaymentScreenState extends ConsumerState<PaymentScreen> {
   PaymentStatus? _selectedPaymentStatus = PaymentStatus.unpaid;
 
-  OrderService get _orderService => AppDependencies.of(context).orderService;
-
-  List<Order> get _filteredOrders {
+  List<Order> _filteredOrders(OrderService service) {
     if (_selectedPaymentStatus == null) {
-      return _orderService.getAllOrders();
+      return service.getAllOrders();
     }
-    return _orderService.getOrdersByPaymentStatus(_selectedPaymentStatus!);
-  }
-
-  int get _selectedIndex {
-    if (_selectedPaymentStatus == null) return 0;
-    if (_selectedPaymentStatus == PaymentStatus.unpaid) return 1;
-    return 2;
+    return service.getOrdersByPaymentStatus(_selectedPaymentStatus!);
   }
 
   void _onFilterSelected(int index) {
     setState(() {
-      switch (index) {
-        case 0:
-          _selectedPaymentStatus = null; // All
-          break;
-        case 1:
-          _selectedPaymentStatus = PaymentStatus.unpaid;
-          break;
-        case 2:
-          _selectedPaymentStatus = PaymentStatus.paid;
-          break;
-      }
+      _selectedPaymentStatus = switch (index) {
+        0 => null,
+        1 => PaymentStatus.unpaid,
+        _ => PaymentStatus.paid,
+      };
     });
   }
 
-  void _showOrderDetails(Order order) {
+  void _showOrderDetails(Order order, OrderService service) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -60,33 +44,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
       builder: (_) => PaymentDetailSheet(
         order: order,
         onConfirmPayment: () {
-          setState(() {
-            _orderService.payOrder(order);
-          });
-
+          service.payOrder(order);
+          ref.invalidate(orderServiceProvider);
           Navigator.pop(context);
 
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Row(
-                children: const [
-                  Icon(Icons.check_circle, color: Colors.white),
-                  SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      "Payment confirmed successfully!",
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ],
-              ),
+            const SnackBar(
+              content: Text("Payment confirmed successfully!"),
               backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              margin: const EdgeInsets.all(16),
-              duration: const Duration(seconds: 2),
             ),
           );
         },
@@ -94,55 +59,54 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  Widget _buildOrderItem(Order order) {
-    return OrderPaymentCard(
-      orderNumber: order.tableNumber?.toString() ?? "N/A",
-      price: order.totalAmount,
-      customerName: order.tableNumber != null
-          ? "Table ${order.tableNumber}"
-          : "Customer",
-      itemCount: order.items.length,
-      isPaid: order.isPaid,
-      onTap: () => _showOrderDetails(order),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: _filteredOrders.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 15),
-                itemBuilder: (_, index) =>
-                    _buildOrderItem(_filteredOrders[index]),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+    final orderService = ref.watch(orderServiceProvider);
+    final orders = _filteredOrders(orderService);
 
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          const SearchBarComponent(hintText: "Search by order # or customer"),
-          const SizedBox(height: 20),
-          SelectionBar(
-            items: const ["All", "Unpaid", "Paid"],
-            initialIndex: _selectedIndex,
-            onItemSelected: _onFilterSelected,
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              const SearchBarComponent(
+                hintText: "Search by order # or customer",
+              ),
+              const SizedBox(height: 20),
+              SelectionBar(
+                items: const ["All", "Unpaid", "Paid"],
+                initialIndex: _selectedPaymentStatus == null
+                    ? 0
+                    : _selectedPaymentStatus == PaymentStatus.unpaid
+                        ? 1
+                        : 2,
+                onItemSelected: _onFilterSelected,
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        Expanded(
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            itemCount: orders.length,
+            separatorBuilder: (_, __) => const SizedBox(height: 15),
+            itemBuilder: (_, index) {
+              final order = orders[index];
+              return OrderPaymentCard(
+                orderNumber: order.tableNumber?.toString() ?? "N/A",
+                price: order.totalAmount,
+                customerName: order.tableNumber != null
+                    ? "Table ${order.tableNumber}"
+                    : "Customer",
+                itemCount: order.items.length,
+                isPaid: order.isPaid,
+                onTap: () => _showOrderDetails(order, orderService),
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }

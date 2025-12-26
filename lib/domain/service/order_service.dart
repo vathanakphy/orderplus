@@ -11,7 +11,7 @@ class OrderService {
   }
 
   void _initializeUsedTables() {
-    for (var order in _repository.getAllOrders()) {
+    for (var order in _repository.orders) {
       if (_isOrderUsingTable(order)) {
         _usedTables.add(order.tableNumber!);
       }
@@ -35,32 +35,32 @@ class OrderService {
     _repository.removeOrder(order);
     final table = order.tableNumber;
     if (table != null) {
-      final stillUsed = _repository.getAllOrders().any(
+      final stillUsed = _repository.orders.any(
         (o) => o.tableNumber == table && _isOrderUsingTable(o),
       );
       if (!stillUsed) _usedTables.remove(table);
     }
   }
 
-  List<Order> getAllOrders() => _repository.getAllOrders();
+  List<Order> getAllOrders() => _repository.orders;
 
   List<Order> getOrdersByStatus(OrderStatus status) =>
-      _repository.getAllOrders().where((o) => o.status == status).toList();
+      _repository.orders.where((o) => o.status == status).toList();
 
   List<Order> getOrdersByPaymentStatus(PaymentStatus status) => _repository
-      .getAllOrders()
+      .orders
       .where((o) => o.paymentStatus == status && o.status == OrderStatus.served)
       .toList();
 
   List<Order> getOrdersByTable(int tableNumber) => _repository
-      .getAllOrders()
+      .orders
       .where((o) => o.tableNumber == tableNumber)
       .toList();
 
   List<int> getBusyTables() => _usedTables.toList();
 
   List<int> getFreeTables() => _repository
-      .getAllTables()
+      .tables
       .where((t) => !_usedTables.contains(t))
       .toList();
 
@@ -74,6 +74,6 @@ class OrderService {
         order.status != OrderStatus.served;
   }
 
-  List<int> get tables => _repository.getAllTables();
+  List<int> get tables => _repository.tables;
   void addTable(newId) => _repository.addTables(newId);
 }

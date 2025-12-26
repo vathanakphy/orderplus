@@ -6,21 +6,21 @@ class ProductService {
 
   ProductService(this._repository);
 
-  List<Product> getAllProducts() => _repository.getAll();
+  List<Product> getAllProducts() => _repository.products;
   List<String> getAllCategories() =>
-      ["All", "Top"] + _repository.getAllCategories();
+      ["All", "Top"] + _repository.categories;
 
   List<Product> getAvailableProducts() =>
-      _repository.getAll().where((p) => p.isAvailable).toList();
+      _repository.products.where((p) => p.isAvailable).toList();
 
   List<Product> getUnavailableProducts() =>
-      _repository.getAll().where((p) => !p.isAvailable).toList();
+      _repository.products.where((p) => !p.isAvailable).toList();
 
   List<Product> getProductsByCategory(String category) =>
-      _repository.getAll().where((p) => p.category == category).toList();
+      _repository.products.where((p) => p.category == category).toList();
 
   List<Product> getAvailableByCategory(String category) => _repository
-      .getAll()
+      .products
       .where((p) => p.category == category && p.isAvailable)
       .toList();
 
@@ -29,7 +29,7 @@ class ProductService {
 
   List<Product> searchProducts(String query) {
     final lowerQuery = query.toLowerCase();
-    return _repository.getAll()
+    return _repository.products
         .where((p) => p.name.toLowerCase().contains(lowerQuery))
         .toList();
   }

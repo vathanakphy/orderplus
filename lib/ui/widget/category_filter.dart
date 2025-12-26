@@ -52,7 +52,7 @@ class CategoryFilter extends StatelessWidget {
                           BoxShadow(
                             color: Theme.of(
                               context,
-                            ).primaryColor.withOpacity(0.3),
+                            ).primaryColor,
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),

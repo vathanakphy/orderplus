@@ -86,7 +86,7 @@ class _SelectionBarState extends State<SelectionBar> {
                       borderRadius: BorderRadius.circular(40),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black,
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -94,8 +94,6 @@ class _SelectionBarState extends State<SelectionBar> {
                     ),
                   ),
                 ),
-
-                // --- Scrollable items ---
                 SingleChildScrollView(
                   controller: _scroll,
                   scrollDirection: Axis.horizontal,
