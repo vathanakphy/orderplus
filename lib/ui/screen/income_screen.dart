@@ -12,7 +12,7 @@ class IncomeScreen extends StatefulWidget {
 }
 
 class _IncomeScreenState extends State<IncomeScreen> {
-  int _selectedPeriodIndex = 1; 
+  int _selectedPeriodIndex = 1;
 
   @override
   Widget build(BuildContext context) {

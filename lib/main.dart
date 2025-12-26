@@ -1,21 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:orderplus/data/design_config.dart';
 import 'package:orderplus/app_dependencies.dart';
 import 'package:orderplus/data/order_repository.dart';
 import 'package:orderplus/data/product_repository.dart';
 import 'package:orderplus/data/sample_data.dart';
 import 'package:orderplus/ui/screen/add_item_screen.dart';
-import 'package:orderplus/ui/screen/home_screen.dart';
 import 'package:orderplus/ui/screen/income_screen.dart';
 import 'package:orderplus/ui/screen/menu_screen.dart';
 import 'package:orderplus/ui/screen/order_queue_screen.dart';
-import 'package:orderplus/ui/screen/order_screen.dart';
 import 'package:orderplus/ui/screen/payment_screen.dart';
+import 'package:orderplus/ui/screen/table_screen.dart';
 import 'package:orderplus/ui/widget/screen_wrapper.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ProviderScope( 
+      child: MyApp(),
+    ),
+  );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -41,7 +46,7 @@ class MyApp extends StatelessWidget {
             title: 'Dashboard',
             leftIcon: Icons.menu,
             rightIcon: Icons.settings,
-            child: HomeScreen(),
+            child: TableScreen(),
           ),
           '/menu': (context) => ScreenWrapper(
             title: 'Menu',
@@ -73,11 +78,11 @@ class MyApp extends StatelessWidget {
             leftIcon: Icons.arrow_back_ios,
             child: OrderQueueScreen(),
           ),
-          '/add-order': (context) => const ScreenWrapper(
-            title: 'OrdersPlus',
-            leftIcon: Icons.arrow_back_ios,
-            child: OrderScreen(),
-          ),
+          // '/add-order': (context) => const ScreenWrapper(
+          //   title: 'OrdersPlus',
+          //   leftIcon: Icons.arrow_back_ios,
+          //   child: OrderScreen(),
+          // ),
         },
       ),
     );

@@ -5,6 +5,7 @@ class OrderRepository {
   final List<int> _tables = [];
 
   void addTables(List<int> tables) => _tables.addAll(tables);
+  void addTable(int table) => _tables.add(table);
 
   void addOrder(Order order) => _orders.add(order);
 

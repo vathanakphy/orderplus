@@ -9,15 +9,33 @@ import 'package:orderplus/ui/widget/order_form.dart';
 import 'package:orderplus/app_dependencies.dart';
 
 class OrderScreen extends StatefulWidget {
-  const OrderScreen({super.key});
+  final int tableId;
+  final List<OrderItem> cartItems;
+  final void Function() onBack;
+  final void Function(List<OrderItem> updatedItems) onCartUpdated;
+
+  const OrderScreen({
+    super.key,
+    required this.tableId,
+    required this.cartItems,
+    required this.onBack,
+    required this.onCartUpdated,
+  });
 
   @override
   State<OrderScreen> createState() => _OrderScreenState();
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  final List<OrderItem> _cartItems = [];
+  late List<OrderItem> _cartItems;
   String _selectedCategory = "All";
+
+  @override
+  void initState() {
+    super.initState();
+    // Use the cartItems passed from parent
+    _cartItems = List<OrderItem>.from(widget.cartItems);
+  }
 
   void _addToCart(Product product) {
     setState(() {
@@ -36,6 +54,9 @@ class _OrderScreenState extends State<OrderScreen> {
         existingItem.quantity = 1;
         _cartItems.add(existingItem);
       }
+
+      // Notify parent of cart update
+      widget.onCartUpdated(_cartItems);
     });
   }
 
@@ -62,6 +83,7 @@ class _OrderScreenState extends State<OrderScreen> {
       orderService.addOrder(order);
 
       setState(() => _cartItems.clear());
+      widget.onCartUpdated(_cartItems);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -73,7 +95,7 @@ class _OrderScreenState extends State<OrderScreen> {
         );
       }
     } else {
-      setState(() {});
+      setState(() {}); // just rebuild
     }
   }
 
@@ -87,6 +109,13 @@ class _OrderScreenState extends State<OrderScreen> {
         : allProducts.where((p) => p.category == _selectedCategory).toList();
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Table ${widget.tableId}"),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: widget.onBack,
+        ),
+      ),
       floatingActionButton: _cartItems.isNotEmpty
           ? FloatingActionButton.extended(
               onPressed: _openCheckout,

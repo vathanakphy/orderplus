@@ -38,7 +38,10 @@ class ScreenWrapper extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Expanded(
-              child: Padding(padding: const EdgeInsets.symmetric(horizontal: 10), child: child),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: child,
+              ),
             ),
           ],
         ),

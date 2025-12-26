@@ -4,8 +4,9 @@ import 'package:orderplus/domain/model/enum.dart';
 
 class OrderService {
   final OrderRepository _repository;
-  final Set<int> _usedTables = {}; 
-  OrderService({required OrderRepository repository}) : _repository = repository {
+  final Set<int> _usedTables = {};
+  OrderService({required OrderRepository repository})
+    : _repository = repository {
     _initializeUsedTables();
   }
 
@@ -16,6 +17,7 @@ class OrderService {
       }
     }
   }
+
   void payOrder(Order order) {
     order.markPaid();
     _usedTables.remove(order.tableNumber);
@@ -33,8 +35,9 @@ class OrderService {
     _repository.removeOrder(order);
     final table = order.tableNumber;
     if (table != null) {
-      final stillUsed = _repository.getAllOrders().any((o) =>
-          o.tableNumber == table && _isOrderUsingTable(o));
+      final stillUsed = _repository.getAllOrders().any(
+        (o) => o.tableNumber == table && _isOrderUsingTable(o),
+      );
       if (!stillUsed) _usedTables.remove(table);
     }
   }
@@ -44,16 +47,22 @@ class OrderService {
   List<Order> getOrdersByStatus(OrderStatus status) =>
       _repository.getAllOrders().where((o) => o.status == status).toList();
 
-  List<Order> getOrdersByPaymentStatus(PaymentStatus status) =>
-      _repository.getAllOrders().where((o) => o.paymentStatus == status && o.status==OrderStatus.served).toList();
+  List<Order> getOrdersByPaymentStatus(PaymentStatus status) => _repository
+      .getAllOrders()
+      .where((o) => o.paymentStatus == status && o.status == OrderStatus.served)
+      .toList();
 
-  List<Order> getOrdersByTable(int tableNumber) =>
-      _repository.getAllOrders().where((o) => o.tableNumber == tableNumber).toList();
+  List<Order> getOrdersByTable(int tableNumber) => _repository
+      .getAllOrders()
+      .where((o) => o.tableNumber == tableNumber)
+      .toList();
 
   List<int> getBusyTables() => _usedTables.toList();
 
-  List<int> getFreeTables() =>
-      _repository.getAllTables().where((t) => !_usedTables.contains(t)).toList();
+  List<int> getFreeTables() => _repository
+      .getAllTables()
+      .where((t) => !_usedTables.contains(t))
+      .toList();
 
   bool isTableBusy(int tableNumber) => _usedTables.contains(tableNumber);
 
@@ -64,4 +73,7 @@ class OrderService {
         order.status != OrderStatus.cancelled &&
         order.status != OrderStatus.served;
   }
+
+  List<int> get tables => _repository.getAllTables();
+  void addTable(newId) => _repository.addTables(newId);
 }

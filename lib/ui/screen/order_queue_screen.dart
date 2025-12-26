@@ -30,10 +30,12 @@ class _OrderQueueScreenState extends State<OrderQueueScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final orders = _orderService.getAllOrders()
-        .where((o) => o.status != OrderStatus.cancelled)
-        .toList()
-      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    final orders =
+        _orderService
+            .getAllOrders()
+            .where((o) => o.status != OrderStatus.cancelled)
+            .toList()
+          ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
     return Scaffold(
       body: ListView.separated(
