@@ -1,29 +1,37 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/model/order.dart';
+import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/service/order_service.dart';
-import 'package:orderplus/providers.dart';
-import 'package:orderplus/ui/widget/order_payment_card.dart';
-import 'package:orderplus/ui/widget/payment_detail.dart';
-import 'package:orderplus/ui/widget/search_bar.dart';
-import 'package:orderplus/ui/widget/selection_bar.dart';
+import '../widget/order_payment_card.dart';
+import '../widget/payment_detail.dart';
+import '../widget/search_bar.dart';
+import '../widget/selection_bar.dart';
+class PaymentScreen extends StatefulWidget {
+  final OrderService orderService;
 
-class PaymentScreen extends ConsumerStatefulWidget {
-  const PaymentScreen({super.key});
+  const PaymentScreen({super.key, required this.orderService});
 
   @override
-  ConsumerState<PaymentScreen> createState() => _PaymentScreenState();
+  State<PaymentScreen> createState() => _PaymentScreenState();
 }
 
-class _PaymentScreenState extends ConsumerState<PaymentScreen> {
+class _PaymentScreenState extends State<PaymentScreen> {
   PaymentStatus? _selectedPaymentStatus = PaymentStatus.unpaid;
+  late List<Order> _orders;
 
-  List<Order> _filteredOrders(OrderService service) {
-    if (_selectedPaymentStatus == null) {
-      return service.getAllOrders();
-    }
-    return service.getOrdersByPaymentStatus(_selectedPaymentStatus!);
+  @override
+  void initState() {
+    super.initState();
+    _loadOrders();
+  }
+
+  void _loadOrders() {
+    _orders = _filteredOrders();
+  }
+
+  List<Order> _filteredOrders() {
+    if (_selectedPaymentStatus == null) return widget.orderService.getAllOrders();
+    return widget.orderService.getOrdersByPaymentStatus(_selectedPaymentStatus!);
   }
 
   void _onFilterSelected(int index) {
@@ -33,10 +41,25 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         1 => PaymentStatus.unpaid,
         _ => PaymentStatus.paid,
       };
+      _loadOrders();
     });
   }
 
-  void _showOrderDetails(Order order, OrderService service) {
+  void _confirmPayment(Order order) {
+    setState(() {
+      widget.orderService.payOrder(order);
+      _orders.remove(order); // remove immediately
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Payment confirmed successfully!"),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  void _showOrderDetails(Order order) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -44,16 +67,8 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
       builder: (_) => PaymentDetailSheet(
         order: order,
         onConfirmPayment: () {
-          service.payOrder(order);
-          ref.invalidate(orderServiceProvider);
           Navigator.pop(context);
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Payment confirmed successfully!"),
-              backgroundColor: Colors.green,
-            ),
-          );
+          _confirmPayment(order);
         },
       ),
     );
@@ -61,18 +76,13 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final orderService = ref.watch(orderServiceProvider);
-    final orders = _filteredOrders(orderService);
-
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              const SearchBarComponent(
-                hintText: "Search by order # or customer",
-              ),
+              const SearchBarComponent(hintText: "Search by order # or customer"),
               const SizedBox(height: 20),
               SelectionBar(
                 items: const ["All", "Unpaid", "Paid"],
@@ -89,19 +99,19 @@ class _PaymentScreenState extends ConsumerState<PaymentScreen> {
         Expanded(
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: orders.length,
+            itemCount: _orders.length,
             separatorBuilder: (_, __) => const SizedBox(height: 15),
             itemBuilder: (_, index) {
-              final order = orders[index];
+              final order = _orders[index];
               return OrderPaymentCard(
-                orderNumber: order.tableNumber?.toString() ?? "N/A",
+                orderNumber: order.tableNumber?.toString() ?? "Pickup Customer",
                 price: order.totalAmount,
                 customerName: order.tableNumber != null
                     ? "Table ${order.tableNumber}"
-                    : "Customer",
+                    : "Pickup Customer",
                 itemCount: order.items.length,
                 isPaid: order.isPaid,
-                onTap: () => _showOrderDetails(order, orderService),
+                onTap: () => _showOrderDetails(order),
               );
             },
           ),

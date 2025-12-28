@@ -1,30 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import 'package:orderplus/providers.dart';
-import 'package:orderplus/ui/screen/add_item_screen.dart';
-import 'package:orderplus/ui/widget/product_infor.dart';
-import 'package:orderplus/ui/widget/search_bar.dart';
+import '../widget/product_infor.dart';
+import '../widget/search_bar.dart';
+import '../screen/add_item_screen.dart';
 
-class MenuScreen extends ConsumerStatefulWidget {
-  const MenuScreen({super.key});
+class MenuScreen extends StatefulWidget {
+  final ProductService productService;
+
+  const MenuScreen({super.key, required this.productService});
 
   @override
-  ConsumerState<MenuScreen> createState() => _MenuScreenState();
+  State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreenState extends ConsumerState<MenuScreen> {
+class _MenuScreenState extends State<MenuScreen> {
   String _searchQuery = "";
-
-  ProductService get _productService => ref.read(productServiceProvider);
 
   @override
   Widget build(BuildContext context) {
-    final categories = _productService.getAllCategories();
+    final categories = widget.productService.getAllCategories();
     final products = _searchQuery.isEmpty
-        ? _productService.getAllProducts()
-        : _productService.searchProducts(_searchQuery);
+        ? widget.productService.getAllProducts()
+        : widget.productService.searchProducts(_searchQuery);
 
     return Stack(
       children: [
@@ -49,7 +47,6 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                 ],
               ),
             ),
-
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -65,7 +62,6 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
             ),
           ],
         ),
-
         Positioned(
           bottom: 16,
           right: 16,
@@ -87,9 +83,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
                     return Container(
                       decoration: const BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(20),
-                        ),
+                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                       ),
                       child: SingleChildScrollView(
                         controller: scrollController,
@@ -115,7 +109,7 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionHeader(title),
+        Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
         for (final product in products)
           Padding(
@@ -130,17 +124,6 @@ class _MenuScreenState extends ConsumerState<MenuScreen> {
           ),
         const SizedBox(height: 25),
       ],
-    );
-  }
-
-  Widget _buildSectionHeader(String title) {
-    return Text(
-      title, 
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
-        color: Color(0xFF2D2D2D),
-      ),
     );
   }
 }

@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import 'package:orderplus/providers.dart';
+import '../widget/category_filter.dart';
+import '../widget/product_card.dart';
+import '../widget/search_bar.dart';
+import '../widget/order_form.dart';
 
-import 'package:orderplus/ui/widget/category_filter.dart';
-import 'package:orderplus/ui/widget/product_card.dart';
-import 'package:orderplus/ui/widget/search_bar.dart';
-import 'package:orderplus/ui/widget/order_form.dart';
-
-class OrderScreen extends ConsumerStatefulWidget {
+class OrderScreen extends StatefulWidget {
   final int tableId;
   final List<OrderItem> cartItems;
   final VoidCallback onBack;
   final void Function(List<OrderItem>) onCartUpdated;
+  final OrderService orderService;
+  final ProductService productService;
 
   const OrderScreen({
     super.key,
@@ -25,27 +22,24 @@ class OrderScreen extends ConsumerStatefulWidget {
     required this.cartItems,
     required this.onBack,
     required this.onCartUpdated,
+    required this.orderService,
+    required this.productService,
   });
 
   @override
-  ConsumerState<OrderScreen> createState() => _OrderScreenState();
+  State<OrderScreen> createState() => _OrderScreenState();
 }
 
-class _OrderScreenState extends ConsumerState<OrderScreen> {
+class _OrderScreenState extends State<OrderScreen> {
   late List<OrderItem> _cartItems;
   String _selectedCategory = "All";
+  String _searchQuery = "";
 
   @override
   void initState() {
     super.initState();
     _cartItems = List<OrderItem>.from(widget.cartItems);
   }
-
-  ProductService get _productService =>
-      ref.read(productServiceProvider);
-
-  OrderService get _orderService =>
-      ref.read(orderServiceProvider);
 
   void _addToCart(Product product) {
     setState(() {
@@ -85,14 +79,14 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
   Future<void> _openCheckout() async {
     if (_cartItems.isEmpty) return;
 
-    final order = await showModalBottomSheet<Order>(
+    final order = await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       builder: (_) => OrderForm(cartItems: _cartItems),
     );
 
     if (order != null) {
-      _orderService.addOrder(order);
+      widget.orderService.addOrder(order); 
 
       setState(() => _cartItems.clear());
       widget.onCartUpdated(_cartItems);
@@ -110,13 +104,17 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final allProducts = _productService.getAllProducts();
-
-    final displayedProducts = _selectedCategory == "All"
+    final allProducts = widget.productService.getAllProducts();
+    var filteredProducts = _selectedCategory == "All"
         ? allProducts
-        : allProducts
-            .where((p) => p.category == _selectedCategory)
-            .toList();
+        : allProducts.where((p) => p.category == _selectedCategory).toList();
+    if (_searchQuery.isNotEmpty) {
+      filteredProducts = filteredProducts
+          .where(
+            (p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+          )
+          .toList();
+    }
 
     return Column(
       children: [
@@ -147,34 +145,38 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SearchBarComponent(
+                    // Hook up onChanged to update _searchQuery
+                    SearchBarComponent(
                       hintText: "Search for product",
+                      onChanged: (query) {
+                        setState(() {
+                          _searchQuery = query;
+                        });
+                      },
                     ),
                     const SizedBox(height: 16),
                     CategoryFilter(
-                      categories: _productService.getAllCategories(),
+                      categories: widget.productService.getAllCategories(),
                       selectedCategory: _selectedCategory,
                       onCategorySelected: (category) {
                         setState(() => _selectedCategory = category);
                       },
                     ),
                     const SizedBox(height: 16),
-
                     Expanded(
                       child: GridView.builder(
                         padding: const EdgeInsets.only(bottom: 90),
-                        itemCount: displayedProducts.length,
+                        itemCount: filteredProducts.length,
                         gridDelegate:
                             const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 2,
-                          mainAxisSpacing: 12,
-                          crossAxisSpacing: 12,
-                          childAspectRatio: 0.85,
-                        ),
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              childAspectRatio: 0.85,
+                            ),
                         itemBuilder: (context, index) {
-                          final product = displayedProducts[index];
+                          final product = filteredProducts[index];
                           final quantity = _getQuantity(product);
-
                           return Stack(
                             children: [
                               ProductCard(
@@ -214,10 +216,7 @@ class _OrderScreenState extends ConsumerState<OrderScreen> {
                     onPressed: _openCheckout,
                     icon: const Icon(Icons.shopping_cart_checkout),
                     label: Text(
-                      "Checkout (${_cartItems.fold<int>(
-                        0,
-                        (sum, i) => sum + i.quantity,
-                      )})",
+                      "Checkout (${_cartItems.fold<int>(0, (sum, i) => sum + i.quantity)})",
                     ),
                   ),
                 ),

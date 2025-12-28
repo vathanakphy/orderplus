@@ -2,26 +2,31 @@ import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/enum.dart'; // OrderStatus
 import 'package:orderplus/ui/widget/icon_button.dart';
 
-class ProductQueueCard extends StatelessWidget {
+class OrderQueueCard extends StatelessWidget {
   final String orderNumber;
+  final String tableLabel; // Table info or "Pickup Customer"
   final String timeAgo;
   final String itemsSummary;
   final bool isNew;
   final OrderStatus status;
   final bool isPaid;
   final VoidCallback? onActionTap;
+  final VoidCallback? onTap;
 
-  const ProductQueueCard({
+  const OrderQueueCard({
     super.key,
     required this.orderNumber,
+    required this.tableLabel,
     required this.timeAgo,
     required this.itemsSummary,
     this.isNew = false,
     this.status = OrderStatus.queued,
     this.isPaid = true,
     this.onActionTap,
+    this.onTap,
   });
 
+  // --- Helper methods ---
   String getStatusText() {
     switch (status) {
       case OrderStatus.queued:
@@ -78,147 +83,139 @@ class ProductQueueCard extends StatelessWidget {
     const Color titleColor = Color(0xFF1D1B20);
     const Color subtitleColor = Color(0xFF757575);
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            blurRadius: 5,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Order #$orderNumber",
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: titleColor,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tableLabel, // Show table number or pickup
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: titleColor,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      timeAgo,
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: subtitleColor,
+                      const SizedBox(height: 4),
+                      Text(
+                        timeAgo,
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                          color: subtitleColor,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Row(
-                      children: [
-                        if (isNew && status == OrderStatus.queued)
-                          Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFFE0B2),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              "New",
-                              style: TextStyle(
+                    ],
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Row(
+                        children: [
+                          if (isNew && status == OrderStatus.queued)
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFFFE0B2),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: const Text(
+                                "New",
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: Color(0xFFE65100)),
-                            ),
-                          )
-                        else if (status != OrderStatus.queued &&
-                            status != OrderStatus.cancelled)
-                          Container(
-                            margin: const EdgeInsets.only(right: 8),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: getBadgeBgColor(),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              getStatusText(),
-                              style: TextStyle(
+                                  color: Color(0xFFE65100),
+                                ),
+                              ),
+                            )
+                          else if (status != OrderStatus.queued && status != OrderStatus.cancelled)
+                            Container(
+                              margin: const EdgeInsets.only(right: 8),
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: getBadgeBgColor(),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                getStatusText(),
+                                style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color: getBadgeTextColor()),
-                            ),
-                          ),
-                        Row(
-                          children: [
-                            Icon(
-                              isPaid
-                                  ? Icons.check_circle_outline
-                                  : Icons.error_outline,
-                              size: 16,
-                              color: isPaid ? Colors.green : Colors.red,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              isPaid ? "Paid" : "Unpaid",
-                              style: TextStyle(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w600,
-                                color: isPaid ? Colors.green : Colors.red,
+                                  color: getBadgeTextColor(),
+                                ),
                               ),
                             ),
-                          ],
-                        )
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF5F5F5)),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  itemsSummary,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: titleColor,
+                          Row(
+                            children: [
+                              Icon(
+                                isPaid ? Icons.check_circle_outline : Icons.error_outline,
+                                size: 16,
+                                color: isPaid ? Colors.green : Colors.red,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                isPaid ? "Paid" : "Unpaid",
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: isPaid ? Colors.green : Colors.red,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                CustomIconButton(
-                  text: getButtonText(),
-                  height: 48,
-                  color: getButtonColor(),
-                  textColor: Colors.white,
-                  onPressed: status == OrderStatus.served ||
-                          status == OrderStatus.cancelled
-                      ? null
-                      : onActionTap,
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            const Divider(height: 1, thickness: 1, color: Color(0xFFF5F5F5)),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    itemsSummary,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: titleColor,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  CustomIconButton(
+                    text: getButtonText(),
+                    height: 48,
+                    color: getButtonColor(),
+                    textColor: Colors.white,
+                    onPressed: status == OrderStatus.served || status == OrderStatus.cancelled
+                        ? null
+                        : onActionTap,
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/enum.dart';
-import 'package:orderplus/providers.dart';
+import 'package:orderplus/domain/service/order_service.dart';
 
 class OrderDetailCard extends StatelessWidget {
   final Order order;
   final bool showMarkAsServed;
   final VoidCallback? onConfirmPayment;
+  final OrderService orderService;
 
   const OrderDetailCard({
     super.key,
     required this.order,
+    required this.orderService,
     this.showMarkAsServed = false,
     this.onConfirmPayment,
   });
@@ -28,10 +29,8 @@ class OrderDetailCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Order #${order.hashCode}",
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-            ),
+            Text("Order #${order.hashCode}",
+                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(
               order.tableNumber != null ? "Table ${order.tableNumber}" : "Customer / Pickup",
@@ -52,25 +51,20 @@ class OrderDetailCard extends StatelessWidget {
             const SizedBox(height: 10),
             if (showMarkAsServed)
               Center(
-                child: Consumer(
-                  builder: (context, ref, _) {
-                    return ElevatedButton(
-                      onPressed: order.status != OrderStatus.served
-                          ? () {
-                              order.markServed();
-                              ref.invalidate(orderServiceProvider);
-                              Navigator.pop(context);
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Order marked as served!"),
-                                  backgroundColor: Colors.green,
-                                ),
-                              );
-                            }
-                          : null,
-                      child: const Text("Mark as Served"),
-                    );
-                  },
+                child: ElevatedButton(
+                  onPressed: order.status != OrderStatus.served
+                      ? () {
+                          order.markServed();
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Order marked as served!"),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
+                        }
+                      : null,
+                  child: const Text("Mark as Served"),
                 ),
               ),
             if (!showMarkAsServed && onConfirmPayment != null)

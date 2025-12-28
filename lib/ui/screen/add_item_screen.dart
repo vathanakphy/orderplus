@@ -19,7 +19,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
   List<String> categories = ["Appetizer", "Main", "Dessert"];
   String? selectedCategory = "Main";
 
-  // Controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
@@ -73,12 +72,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
           },
         ),
 
-        // _buildLabel("Description"),
-        // _buildTextField(
-        //   controller: descriptionController,
-        //   hintText: "Add a short description...",
-        //   maxLines: 4,
-        // ),
         const SizedBox(height: 25),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -103,7 +96,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
           color: primaryColor,
           textColor: Colors.white,
           onPressed: () {
-            // Access controllers here: nameController.text, descriptionController.text, priceController.text
           },
         ),
       ],
