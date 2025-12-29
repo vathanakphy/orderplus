@@ -1,26 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/model/order.dart';
+import 'package:orderplus/domain/utils/time_handle.dart';
 import 'package:orderplus/ui/widget/cards/badge.dart';
 
 class OrderPaymentCard extends StatelessWidget {
-  final String orderNumber;
-  final double price;
-  final String customerName;
-  final int itemCount;
-  final bool isPaid;
+  final Order order;
   final VoidCallback? onTap;
 
-  const OrderPaymentCard({
-    super.key,
-    required this.orderNumber,
-    required this.price,
-    required this.customerName,
-    required this.itemCount,
-    required this.isPaid,
-    this.onTap,
-  });
+  const OrderPaymentCard({super.key, required this.order, this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final isPickup = order.tableNumber == -1;
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -32,6 +24,7 @@ class OrderPaymentCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Icon
             Container(
               width: 50,
               height: 50,
@@ -46,12 +39,13 @@ class OrderPaymentCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
+
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Order #$orderNumber",
+                    "Order #${order.id}",
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -60,21 +54,30 @@ class OrderPaymentCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    "$customerName • $itemCount items",
+                    "${isPickup ? "Pickup" : "Table ${order.tableNumber}"} • ${order.items.length} items",
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       color: Color(0xFFA1887F),
                     ),
                   ),
+                  Text(
+                    formatTimeAgo(order.createdAt),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF5D4037),
+                    ),
+                  ),
                 ],
               ),
             ),
+
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  "\$${price.toStringAsFixed(2)}",
+                  "\$${order.totalAmount.toStringAsFixed(2)}",
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -83,11 +86,11 @@ class OrderPaymentCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 CustomBadge(
-                  text: isPaid ? "Paid" : "Unpaid",
-                  bgColor: isPaid
+                  text: order.isPaid ? "Paid" : "Unpaid",
+                  bgColor: order.isPaid
                       ? const Color(0xFFE8F5E9)
                       : const Color(0xFFFFF3E0),
-                  textColor: isPaid
+                  textColor: order.isPaid
                       ? const Color(0xFF2E7D32)
                       : const Color(0xFFEF6C00),
                 ),

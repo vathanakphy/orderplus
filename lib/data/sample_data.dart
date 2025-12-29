@@ -10,16 +10,16 @@ void seedProducts(ProductRepository repo) {
   const img = 'assets/burgur.png';
 
   final products = <Product>[
-    Product(name: 'Classic Burger', description: 'Beef patty, lettuce, tomato, cheese, and sauce.', price: 3.99, imageUrl: img, category: 'Burger'),
-    Product(name: 'Cheese Lover', description: 'Extra cheese with beef patty and fresh veggies.', price: 4.49, imageUrl: img, category: 'Burger'),
-    Product(name: 'Margherita Pizza', description: 'Classic tomato, mozzarella, and basil.', price: 6.99, imageUrl: img, category: 'Pizza'),
-    Product(name: 'Pepperoni Pizza', description: 'Pepperoni, cheese, and tomato sauce.', price: 7.49, imageUrl: img, category: 'Pizza'),
-    Product(name: 'Veggie Delight', description: 'Bell peppers, olives, onions, and mushrooms.', price: 6.79, imageUrl: img, category: 'Pizza'),
-    Product(name: 'Cola Drink', description: 'Refreshing carbonated cola.', price: 1.99, imageUrl: img, category: 'Drinks'),
-    Product(name: 'Lemonade', description: 'Freshly squeezed lemon juice with sugar.', price: 2.49, imageUrl: img, category: 'Drinks'),
-    Product(name: 'Iced Tea', description: 'Cool and refreshing iced tea.', price: 2.29, imageUrl: img, category: 'Drinks'),
-    Product(name: 'Chocolate Cake', description: 'Rich chocolate cake with cream frosting.', price: 3.99, imageUrl: img, category: 'Dessert'),
-    Product(name: 'Ice Cream Sundae', description: 'Vanilla ice cream with chocolate sauce and cherry.', price: 4.49, imageUrl: img, category: 'Dessert'),
+    Product(id: 1, name: 'Classic Burger', description: 'Beef patty, lettuce, tomato, cheese, and sauce.', price: 3.99, imageUrl: img, category: 'Burger'),
+    Product(id: 2, name: 'Cheese Lover', description: 'Extra cheese with beef patty and fresh veggies.', price: 4.49, imageUrl: img, category: 'Burger'),
+    Product(id: 3, name: 'Margherita Pizza', description: 'Classic tomato, mozzarella, and basil.', price: 6.99, imageUrl: img, category: 'Pizza'),
+    Product(id: 4, name: 'Pepperoni Pizza', description: 'Pepperoni, cheese, and tomato sauce.', price: 7.49, imageUrl: img, category: 'Pizza'),
+    Product(id: 5, name: 'Veggie Delight', description: 'Bell peppers, olives, onions, and mushrooms.', price: 6.79, imageUrl: img, category: 'Pizza'),
+    Product(id: 6, name: 'Cola Drink', description: 'Refreshing carbonated cola.', price: 1.99, imageUrl: img, category: 'Drinks'),
+    Product(id: 7, name: 'Lemonade', description: 'Freshly squeezed lemon juice with sugar.', price: 2.49, imageUrl: img, category: 'Drinks'),
+    Product(id: 8, name: 'Iced Tea', description: 'Cool and refreshing iced tea.', price: 2.29, imageUrl: img, category: 'Drinks'),
+    Product(id: 9, name: 'Chocolate Cake', description: 'Rich chocolate cake with cream frosting.', price: 3.99, imageUrl: img, category: 'Dessert'),
+    Product(id: 10, name: 'Ice Cream Sundae', description: 'Vanilla ice cream with chocolate sauce and cherry.', price: 4.49, imageUrl: img, category: 'Dessert'),
   ];
 
   for (final p in products) {

@@ -1,33 +1,125 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ImageUploadArea extends StatelessWidget {
   final Color fillColor;
+  final String? imagePath;
+  final Function(String) onImageSelected;
 
-  const ImageUploadArea({super.key, required this.fillColor});
+  const ImageUploadArea({
+    super.key,
+    required this.fillColor,
+    this.imagePath,
+    required this.onImageSelected,
+  });
+
+  Future<void> _showImagePickerOptions(BuildContext context) async {
+    final ImagePicker picker = ImagePicker();
+
+    showModalBottomSheet(
+      context: context,
+      builder: (BuildContext ctx) {
+        return SafeArea(
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt),
+                title: const Text('Take Photo'),
+                onTap: () async {
+                  Navigator.of(ctx).pop();
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.camera,
+                  );
+                  if (image != null) {
+                    onImageSelected(image.path);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Pick from Gallery'),
+                onTap: () async {
+                  Navigator.of(ctx).pop();
+                  final XFile? image = await picker.pickImage(
+                    source: ImageSource.gallery,
+                  );
+                  if (image != null) {
+                    onImageSelected(image.path);
+                  }
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildImage(String path) {
+    if (path.startsWith('assets/')) {
+      return Image.asset(
+        path,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+      );
+    } else {
+      return Image.file(
+        File(path),
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: fillColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey, width: 2),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.add_a_photo_outlined, size: 40, color: Colors.grey[400]),
-          const SizedBox(height: 8),
-          Text(
-            "Upload Image",
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
+    return GestureDetector(
+      onTap: () => _showImagePickerOptions(context),
+      child: Container(
+        height: 180,
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: fillColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey, width: 2),
+        ),
+        child: imagePath == null
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.add_a_photo_outlined,
+                    size: 40,
+                    color: Colors.grey[400],
+                  ),
+                  const SizedBox(height: 8),
+                  const Text(
+                    "Tap to add an image",
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              )
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: _buildImage(imagePath!),
+                  ),
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: ElevatedButton(
+                      onPressed: () => _showImagePickerOptions(context),
+                      child: const Text("Change"),
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }

@@ -82,7 +82,7 @@ class PaymentDetailSheet extends StatelessWidget {
                   name: item.product.name,
                   qty: item.quantity,
                   price: item.priceAtOrder,
-                  image: item.product.imageUrl,
+                  imagePath: item.product.imageUrl,
                 );
               },
             ),

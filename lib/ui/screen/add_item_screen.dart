@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/product_service.dart';
@@ -5,10 +7,16 @@ import 'package:orderplus/ui/widget/inputs/image_upload_area.dart';
 import 'package:orderplus/ui/widget/inputs/category_selector.dart';
 import 'package:orderplus/ui/widget/inputs/icon_button.dart';
 import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AddItemScreen extends StatefulWidget {
   final ProductService productService;
-  const AddItemScreen({super.key, required this.productService});
+  final Product? initialProduct;
+  const AddItemScreen({
+    super.key,
+    required this.productService,
+    this.initialProduct,
+  });
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
@@ -23,12 +31,31 @@ class _AddItemScreenState extends State<AddItemScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
-
+  late String? selectedImagePath;
+  late int iniPorductId;
+  @override
   @override
   void initState() {
-    categories = widget.productService.getAllCategories().where((cat) => cat != "All").toList();
-    selectedCategory = categories.first;
     super.initState();
+
+    categories = widget.productService
+        .getAllCategories()
+        .where((cat) => cat != "All" && cat != "Top")
+        .toList();
+
+    if (widget.initialProduct != null) {
+      final p = widget.initialProduct!;
+      nameController.text = p.name;
+      descriptionController.text = p.description;
+      priceController.text = p.price.toString();
+      selectedCategory = p.category;
+      isAvailable = p.isAvailable;
+      selectedImagePath = p.imageUrl;
+      iniPorductId = p.id;
+    } else {
+      selectedCategory = categories.first;
+      selectedImagePath = null;
+    }
   }
 
   @override
@@ -39,28 +66,34 @@ class _AddItemScreenState extends State<AddItemScreen> {
     super.dispose();
   }
 
-  void _saveItem() {
-    if (_formKey.currentState!.validate()) {
-      final name = nameController.text.trim();
-      final price = double.tryParse(priceController.text.trim()) ?? 0.0;
-      final category = selectedCategory;
-      final newProduct = Product(
-        name: name,
-        description: descriptionController.text.trim(),
-        price: price,
-        category: category,
-        isAvailable: isAvailable,
-        imageUrl: 'assets/burgur.png',
-      );
-      widget.productService.addProduct(newProduct);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Item saved successfully!"),
-          backgroundColor: Colors.green,
-        ),
-      );
+  Future<void> _saveItem() async {
+    if (!_formKey.currentState!.validate()) return;
 
-      Navigator.pop(context);
+    final name = nameController.text.trim();
+    final price = double.parse(priceController.text.trim());
+
+    String? permanentImagePath = selectedImagePath;
+
+    if (selectedImagePath != null &&
+        !selectedImagePath!.startsWith('assets/')) {
+      final dir = await getApplicationDocumentsDirectory();
+      final fileName = selectedImagePath!.split('/').last;
+      permanentImagePath = '${dir.path}/$fileName';
+      await File(selectedImagePath!).copy(permanentImagePath);
+    }
+
+    final newProduct = Product(
+      id: iniPorductId,
+      name: name,
+      description: descriptionController.text.trim(),
+      price: price,
+      category: selectedCategory,
+      isAvailable: isAvailable,
+      imageUrl: permanentImagePath ?? 'assets/burgur.png',
+    );
+
+    if (mounted) {
+      Navigator.pop(context, newProduct);
     }
   }
 
@@ -89,7 +122,16 @@ class _AddItemScreenState extends State<AddItemScreen> {
               onPressed: () => Navigator.pop(context),
             ),
             const SizedBox(height: 10),
-            ImageUploadArea(fillColor: inputFillColor),
+            ImageUploadArea(
+              fillColor: Colors.grey[200]!,
+              imagePath: selectedImagePath,
+              onImageSelected: (path) {
+                setState(() {
+                  selectedImagePath = path;
+                });
+              },
+            ),
+
             const SizedBox(height: 25),
             LabeledTextField(
               label: "Item Name",

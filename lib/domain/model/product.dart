@@ -1,4 +1,5 @@
 class Product {
+  final int id;
   final String name;
   final String description;
   final double price;
@@ -7,6 +8,7 @@ class Product {
   bool _isAvailable;
 
   Product({
+    required this.id,
     required this.name,
     required this.description,
     required this.price,
@@ -16,7 +18,7 @@ class Product {
   }) : _isAvailable = isAvailable;
 
   bool get isAvailable => _isAvailable;
-
+  
   void markUnavailable() => _isAvailable = false;
   void markAvailable() => _isAvailable = true;
 }

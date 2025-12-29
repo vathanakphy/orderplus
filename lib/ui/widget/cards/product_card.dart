@@ -1,16 +1,19 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ProductCard extends StatelessWidget {
   final String title;
-  final String imageAssetPath;
+  final String imagePath; // asset OR file path
   final VoidCallback? onAddTap;
 
   const ProductCard({
     super.key,
     required this.title,
-    required this.imageAssetPath,
+    required this.imagePath,
     this.onAddTap,
   });
+
+  bool get _isAsset => imagePath.startsWith('assets/');
 
   @override
   Widget build(BuildContext context) {
@@ -30,55 +33,46 @@ class ProductCard extends StatelessWidget {
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
                 ),
                 child: SizedBox(
                   height: 140,
                   width: double.infinity,
-                  child: FittedBox(
-                    child: Image.asset(
-                      imageAssetPath,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
-                          height: 140,
-                          color: Colors.grey[200],
-                          child: const Icon(Icons.fastfood, color: Colors.grey),
-                        );
-                      },
-                    ),
-                  ),
+                  child: _isAsset
+                      ? Image.asset(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _fallbackImage(),
+                        )
+                      : Image.file(
+                          File(imagePath),
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) =>
+                              _fallbackImage(),
+                        ),
                 ),
               ),
               Positioned(
                 bottom: 8,
                 right: 8,
-                child: Material(
-                  color: Colors.transparent,
-                  child: InkWell(
-                    onTap: onAddTap,
-                    borderRadius: BorderRadius.circular(24),
-                    child: Container(
-                      height: 46,
-                      width: 46,
-                      decoration: BoxDecoration(
-                        color: buttonColor,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 32,
-                      ),
+                child: InkWell(
+                  onTap: onAddTap,
+                  borderRadius: BorderRadius.circular(24),
+                  child: Container(
+                    height: 46,
+                    width: 46,
+                    decoration: const BoxDecoration(
+                      color: buttonColor,
+                      shape: BoxShape.circle,
                     ),
+                    child: const Icon(Icons.add, color: Colors.white, size: 32),
                   ),
                 ),
               ),
             ],
           ),
-          // Text section
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
             child: Text(
@@ -87,7 +81,6 @@ class ProductCard extends StatelessWidget {
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: titleColor,
-                letterSpacing: -0.5,
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
@@ -95,6 +88,13 @@ class ProductCard extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _fallbackImage() {
+    return Container(
+      color: Colors.grey[200],
+      child: const Icon(Icons.fastfood, color: Colors.grey),
     );
   }
 }

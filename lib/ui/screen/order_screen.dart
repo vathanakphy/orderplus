@@ -4,7 +4,7 @@ import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
+import 'package:orderplus/ui/widget/inputs/search_bar.dart';
 import '../widget/inputs/category_filter.dart';
 import '../widget/cards/product_card.dart';
 import '../widget/layout/order_form.dart';
@@ -88,7 +88,6 @@ class _OrderScreenState extends State<OrderScreen> {
 
     if (orderItems == null || orderItems.isEmpty) {
       setState(() {
-        _cartItems.clear();
       });
       return;
     }
@@ -172,17 +171,13 @@ class _OrderScreenState extends State<OrderScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    LabeledTextField(
-                      controller: TextEditingController(text: _searchQuery),
-                      hintText: "Search for product",
-                      labelColor:
-                          Theme.of(context).textTheme.bodyMedium!.color ??
-                          Colors.black,
-                      fillColor: Theme.of(
-                        context,
-                      ).colorScheme.secondary.withAlpha((0.1 * 255).round()),
-                      onChanged: (query) =>
-                          setState(() => _searchQuery = query),
+                    CustomSearchBar(
+                      hintText: "Search by order",
+                      onChanged: (query) {
+                        setState(() {
+                          _searchQuery = query;
+                        });
+                      },
                     ),
                     const SizedBox(height: 16),
                     CategoryFilter(
@@ -211,7 +206,7 @@ class _OrderScreenState extends State<OrderScreen> {
                             children: [
                               ProductCard(
                                 title: product.name,
-                                imageAssetPath: product.imageUrl,
+                                imagePath: product.imageUrl,
                                 onAddTap: () => _addToCart(product),
                               ),
                               if (quantity > 0)

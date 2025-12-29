@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/service/order_service.dart';
-import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
+import 'package:orderplus/ui/widget/inputs/search_bar.dart';
 import '../widget/cards/order_payment_card.dart';
 import '../widget/layout/payment_detail.dart';
 import '../widget/inputs/selection_bar.dart';
@@ -68,7 +68,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final orders = _filteredOrders();
+    final orders = _filteredOrders().reversed.toList();
 
     return Column(
       children: [
@@ -82,16 +82,17 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              LabeledTextField(
-                controller: TextEditingController(),
+              CustomSearchBar(
                 hintText: "Search by order",
-                labelColor:
-                    Theme.of(context).textTheme.bodyMedium!.color ??
-                    Colors.black,
-                fillColor: Theme.of(
-                  context,
-                ).colorScheme.secondary.withAlpha((0.1 * 255).round()),
+                onChanged: (query) {
+                  setState(() {
+                    orders.where(
+                      (order) => order.id.toString().contains(query),
+                    );
+                  });
+                },
               ),
+
               const SizedBox(height: 20),
               SelectionBar(
                 items: const ["All", "Unpaid", "Paid"],
@@ -113,15 +114,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
             itemBuilder: (_, index) {
               final order = orders[index];
               return OrderPaymentCard(
-                orderNumber: order.tableNumber == -1
-                    ? "Pickup Customer"
-                    : order.tableNumber.toString(),
-                price: order.totalAmount,
-                customerName: order.tableNumber != -1
-                    ? "Table ${order.tableNumber}"
-                    : "Pickup Customer",
-                itemCount: order.items.length,
-                isPaid: order.isPaid,
+                order: order,
                 onTap: () => _showOrderDetails(order),
               );
             },
