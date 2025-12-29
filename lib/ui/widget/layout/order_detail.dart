@@ -33,7 +33,7 @@ class OrderDetailCard extends StatelessWidget {
                 style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text(
-              order.tableNumber != null ? "Table ${order.tableNumber}" : "Customer / Pickup",
+              order.tableNumber != -1 ? "Table ${order.tableNumber}" : "Customer / Pickup",
               style: const TextStyle(fontSize: 18),
             ),
             const SizedBox(height: 6),

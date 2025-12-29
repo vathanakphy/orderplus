@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
+import 'package:orderplus/ui/widget/cards/table_card.dart';
 import 'order_screen.dart';
 
 class TableScreen extends StatefulWidget {
   final OrderService orderService;
   final ProductService productService;
+
   const TableScreen({
     super.key,
     required this.orderService,
@@ -19,26 +21,45 @@ class TableScreen extends StatefulWidget {
 
 class _TableScreenState extends State<TableScreen> {
   int? activeTableId;
+  bool isEditMode = false;
   final Map<int, List<OrderItem>> _tableCarts = {};
 
   void _addTable() {
-    final newId = widget.orderService.tables.length + 1;
+    final newId = widget.orderService.tables.isEmpty
+        ? 1
+        : widget.orderService.tables.last + 1;
     widget.orderService.addTable(newId);
     setState(() {});
   }
 
+  void _deleteTable(int tableId) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Delete Table"),
+        content: Text("Are you sure you want to delete Table $tableId?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Delete"),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      widget.orderService.removeTable(tableId);
+      _tableCarts.remove(tableId);
+      setState(() {});
+    }
+  }
+
   void _selectTable(int tableId) {
     setState(() => activeTableId = tableId);
-    final existingOrders = widget.orderService.getOrdersByTable(tableId);
-    if (existingOrders.isNotEmpty) {
-      final combinedItems = <OrderItem>[];
-      for (var order in existingOrders) {
-        combinedItems.addAll(order.items);
-      }
-      _tableCarts[tableId] = combinedItems;
-    } else {
-      _tableCarts.putIfAbsent(tableId, () => []);
-    }
+    _tableCarts[tableId] = [];
   }
 
   void _closeOrder() => setState(() => activeTableId = null);
@@ -65,95 +86,48 @@ class _TableScreenState extends State<TableScreen> {
     }
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("Tables & Areas"),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(isEditMode ? Icons.close : Icons.edit),
+            onPressed: () => setState(() => isEditMode = !isEditMode),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: GridView.count(
+          crossAxisCount: 3,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
           children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 8.0),
-              child: Text(
-                "Tables & Areas",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
+            // Pickup tile
+            TableCard(
+              label: "Pickup",
+              color: Colors.deepOrange,
+              onTap: () => _selectTable(-1),
             ),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 3,
-                mainAxisSpacing: 12,
-                crossAxisSpacing: 12,
-                children: [
-                  GestureDetector(
-                    onTap: () => _selectTable(-1),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Colors.orange, Colors.deepOrange],
-                        ),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: const Center(
-                        child: Text(
-                          "Pickup",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  ...allTables.map((tableId) {
-                    return GestureDetector(
-                      onTap: () => _selectTable(tableId),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(
-                            color: _getStatusColor(tableId),
-                            width: 2,
-                          ),
-                          boxShadow: const [
-                            BoxShadow(color: Colors.black12, blurRadius: 4),
-                          ],
-                          color: Colors.white,
-                        ),
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Table $tableId",
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _getStatusLabel(tableId),
-                                style: TextStyle(
-                                  color: _getStatusColor(tableId),
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  }),
-                ],
-              ),
-            ),
+            ...allTables.map((tableId) {
+              return TableCard(
+                label: "Table $tableId",
+                statusLabel: _getStatusLabel(tableId),
+                statusColor: _getStatusColor(tableId),
+                onTap: () => _selectTable(tableId),
+                showEditOverlay: isEditMode,
+                onDeleteTap: () => _deleteTable(tableId),
+              );
+            }),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: "addTableFab",
-        onPressed: _addTable,
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: isEditMode
+          ? FloatingActionButton(
+              onPressed: _addTable,
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }

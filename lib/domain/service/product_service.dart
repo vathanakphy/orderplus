@@ -27,6 +27,13 @@ class ProductService {
   void markAvailable(Product product) => product.markAvailable();
   void markUnavailable(Product product) => product.markUnavailable();
 
+  void deleteProduct(Product product) {
+    _repository.products.remove(product);
+  }
+  void addProduct(Product product) {
+    _repository.products.add(product);
+  }
+
   List<Product> searchProducts(String query) {
     final lowerQuery = query.toLowerCase();
     return _repository.products

@@ -38,15 +38,15 @@ void seedOrders(OrderRepository repo, List<Product> products) {
   // Prevent crashing if product list is empty
   if (products.isEmpty) return;
 
-  final order1 = Order(tableNumber: 1)
+  final order1 = Order(id: 1,tableNumber: 1)
     ..addItem(products.firstWhere((p) => p.name == 'Classic Burger'), 2)
     ..addItem(products.firstWhere((p) => p.name == 'Cola Drink'), 2);
 
-  final order2 = Order(tableNumber: 2)
+  final order2 = Order(id: 2,tableNumber: 2)
     ..addItem(products.firstWhere((p) => p.name == 'Margherita Pizza'), 1)
     ..addItem(products.firstWhere((p) => p.name == 'Lemonade'), 1);
 
-  final order3 = Order(tableNumber: 3)
+  final order3 = Order(id: 3,tableNumber: 3)
     ..addItem(products.firstWhere((p) => p.name == 'Pepperoni Pizza'), 1)
     ..addItem(products.firstWhere((p) => p.name == 'Iced Tea'), 2)
     ..markPaid()

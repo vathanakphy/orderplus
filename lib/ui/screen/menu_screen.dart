@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import '../widget/product_infor.dart';
-import '../widget/search_bar.dart';
+import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
+import '../widget/cards/product_infor.dart';
 import '../screen/add_item_screen.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -38,26 +38,32 @@ class _MenuScreenState extends State<MenuScreen> {
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
-                  SearchBarComponent(
+                  LabeledTextField(
+                    controller: TextEditingController(text: _searchQuery),
                     hintText: "Search for a menu item...",
+                    labelColor: Theme.of(context).textTheme.bodyMedium!.color ?? Colors.black,
+                    fillColor: Theme.of(context).colorScheme.secondary.withAlpha((0.1 * 255).round()),
                     onChanged: (value) {
                       setState(() => _searchQuery = value);
                     },
-                  ),
+                  )
                 ],
               ),
             ),
             Expanded(
-              child: ListView(
+              child: ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
-                children: [
-                  for (final category in categories)
-                    _buildCategorySection(
-                      category,
-                      products.where((p) => p.category == category).toList(),
-                    ),
-                  const SizedBox(height: 80),
-                ],
+                itemCount: categories.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == categories.length) {
+                    return const SizedBox(height: 80);
+                  }
+                  final category = categories[index];
+                  final categoryProducts = products
+                      .where((p) => p.category == category)
+                      .toList();
+                  return _buildCategorySection(category, categoryProducts);
+                },
               ),
             ),
           ],
@@ -74,26 +80,18 @@ class _MenuScreenState extends State<MenuScreen> {
                 context: context,
                 isScrollControlled: true,
                 backgroundColor: Colors.transparent,
-                builder: (_) => DraggableScrollableSheet(
-                  expand: false,
-                  initialChildSize: 0.95,
-                  minChildSize: 0.5,
-                  maxChildSize: 1,
-                  builder: (_, scrollController) {
-                    return Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-                      ),
-                      child: SingleChildScrollView(
-                        controller: scrollController,
-                        child: const Padding(
-                          padding: EdgeInsets.all(20),
-                          child: AddItemScreen(),
-                        ),
-                      ),
-                    );
-                  },
+                builder: (_) => Container(
+                  height: MediaQuery.of(context).size.height * 0.9,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: AddItemScreen(productService: widget.productService,),
+                  ),
                 ),
               );
             },
@@ -103,13 +101,42 @@ class _MenuScreenState extends State<MenuScreen> {
     );
   }
 
+  void onDeleteProduct(BuildContext context, Product product) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Confirm Deletion"),
+        content: Text("Are you sure you want to delete '${product.name}'?"),
+        actions: [
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Delete"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancel"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      setState(() {
+        widget.productService.deleteProduct(product);
+      });
+    }
+  }
+
   Widget _buildCategorySection(String title, List<Product> products) {
     if (products.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(
+          title,
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        ),
         const SizedBox(height: 12),
         for (final product in products)
           Padding(
@@ -119,7 +146,9 @@ class _MenuScreenState extends State<MenuScreen> {
               price: product.price,
               imageUrl: product.imageUrl,
               onEdit: () {},
-              onDelete: () {},
+              onDelete: () async {
+                onDeleteProduct(context, product);
+              },
             ),
           ),
         const SizedBox(height: 25),

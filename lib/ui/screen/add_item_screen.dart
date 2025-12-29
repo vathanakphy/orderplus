@@ -1,27 +1,35 @@
 import 'package:flutter/material.dart';
-import 'package:orderplus/ui/widget/category_selector.dart';
-import 'package:orderplus/ui/widget/icon_button.dart';
+import 'package:orderplus/domain/model/product.dart';
+import 'package:orderplus/domain/service/product_service.dart';
+import 'package:orderplus/ui/widget/inputs/image_upload_area.dart';
+import 'package:orderplus/ui/widget/inputs/category_selector.dart';
+import 'package:orderplus/ui/widget/inputs/icon_button.dart';
+import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
 
 class AddItemScreen extends StatefulWidget {
-  const AddItemScreen({super.key});
+  final ProductService productService;
+  const AddItemScreen({super.key, required this.productService});
 
   @override
   State<AddItemScreen> createState() => _AddItemScreenState();
 }
 
 class _AddItemScreenState extends State<AddItemScreen> {
-  final Color backgroundColor = const Color(0xFFF2F0E9);
-  final Color primaryColor = const Color(0xFFEE7F18);
-  final Color labelColor = const Color(0xFF5D4037);
-  final Color inputFillColor = const Color(0xFFF8F8F8);
+  final _formKey = GlobalKey<FormState>();
 
   bool isAvailable = true;
-  List<String> categories = ["Appetizer", "Main", "Dessert"];
-  String? selectedCategory = "Main";
-
+  late String selectedCategory;
+  late List<String> categories = [];
   final TextEditingController nameController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
+
+  @override
+  void initState() {
+    categories = widget.productService.getAllCategories().where((cat) => cat != "All").toList();
+    selectedCategory = categories.first;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -31,142 +39,133 @@ class _AddItemScreenState extends State<AddItemScreen> {
     super.dispose();
   }
 
+  void _saveItem() {
+    if (_formKey.currentState!.validate()) {
+      final name = nameController.text.trim();
+      final price = double.tryParse(priceController.text.trim()) ?? 0.0;
+      final category = selectedCategory;
+      final newProduct = Product(
+        name: name,
+        description: descriptionController.text.trim(),
+        price: price,
+        category: category,
+        isAvailable: isAvailable,
+        imageUrl: 'assets/burgur.png',
+      );
+      widget.productService.addProduct(newProduct);
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Item saved successfully!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      Navigator.pop(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        IconButton(
-          icon: Icon(Icons.cancel_outlined, size: 32, color: Colors.red),
-          onPressed: () => Navigator.pop(context),
-        ),
-        const SizedBox(height: 10),
-        _buildImageUploadArea(),
-        const SizedBox(height: 25),
-        _buildLabel("Item Name"),
-        _buildTextField(
-          controller: nameController,
-          hintText: "e.g. Classic Burger",
-        ),
-        const SizedBox(height: 20),
-        _buildLabel("Price"),
-        _buildTextField(
-          controller: priceController,
-          hintText: "0.00",
-          prefixIcon: Icons.attach_money,
-          keyboardType: TextInputType.number,
-        ),
-        const SizedBox(height: 20),
-        _buildLabel("Category"),
-        CategorySelector(
-          categories: categories,
-          selectedCategory: selectedCategory,
-          onCategorySelected: (value) {
-            setState(() => selectedCategory = value);
-          },
-          onAddCategory: (newCat) {
-            setState(() {
-              categories.add(newCat);
-              selectedCategory = newCat;
-            });
-          },
-        ),
+    final theme = Theme.of(context);
+    final primaryColor = theme.colorScheme.primary;
+    final labelColor = theme.textTheme.bodyMedium!.color ?? Colors.black;
+    final inputFillColor = theme.colorScheme.secondary.withAlpha(
+      (0.1 * 255).round(),
+    );
 
-        const SizedBox(height: 25),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            IconButton(
+              icon: Icon(
+                Icons.cancel_outlined,
+                size: 32,
+                color: theme.colorScheme.error,
+              ),
+              onPressed: () => Navigator.pop(context),
+            ),
+            const SizedBox(height: 10),
+            ImageUploadArea(fillColor: inputFillColor),
+            const SizedBox(height: 25),
+            LabeledTextField(
+              label: "Item Name",
+              controller: nameController,
+              hintText: "e.g. Classic Burger",
+              labelColor: labelColor,
+              fillColor: inputFillColor,
+              validator: (value) => value == null || value.isEmpty
+                  ? "Please enter item name"
+                  : null,
+            ),
+            const SizedBox(height: 20),
+            LabeledTextField(
+              label: "Price",
+              controller: priceController,
+              hintText: "0.00",
+              prefixIcon: Icons.attach_money,
+              keyboardType: TextInputType.number,
+              labelColor: labelColor,
+              fillColor: inputFillColor,
+              validator: (value) {
+                if (value == null || value.isEmpty) return "Please enter price";
+                final price = double.tryParse(value);
+                if (price == null) return "Enter a valid number";
+                return null;
+              },
+            ),
+            const SizedBox(height: 20),
             Text(
-              "Available",
+              "Category",
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
                 color: labelColor,
               ),
             ),
-            Switch(
-              value: isAvailable,
-              onChanged: (val) => setState(() => isAvailable = val),
+            CategorySelector(
+              categories: categories,
+              selectedCategory: selectedCategory,
+              onCategorySelected: (value) =>
+                  setState(() => selectedCategory = value),
+              onAddCategory: (newCat) {
+                setState(() {
+                  categories.add(newCat);
+                  selectedCategory = newCat;
+                });
+              },
+            ),
+            const SizedBox(height: 25),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "Available",
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                    color: labelColor,
+                  ),
+                ),
+                Switch(
+                  value: isAvailable,
+                  onChanged: (val) => setState(() => isAvailable = val),
+                  activeThumbColor: primaryColor,
+                ),
+              ],
+            ),
+            const SizedBox(height: 40),
+            CustomIconButton(
+              text: "Save Item",
+              color: primaryColor,
+              textColor: theme.colorScheme.onPrimary,
+              onPressed: _saveItem,
             ),
           ],
         ),
-        const SizedBox(height: 40),
-        CustomIconButton(
-          text: "Save Item",
-          color: primaryColor,
-          textColor: Colors.white,
-          onPressed: () {
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildLabel(String text) => Padding(
-    padding: const EdgeInsets.only(bottom: 8),
-    child: Text(
-      text,
-      style: TextStyle(
-        fontSize: 16,
-        fontWeight: FontWeight.w600,
-        color: labelColor,
-      ),
-    ),
-  );
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String hintText,
-    int maxLines = 1,
-    IconData? prefixIcon,
-    TextInputType? keyboardType,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: inputFillColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        keyboardType: keyboardType,
-        style: TextStyle(color: labelColor, fontSize: 16),
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(color: Colors.grey[400]),
-          prefixIcon: prefixIcon != null
-              ? Icon(prefixIcon, color: labelColor, size: 20)
-              : null,
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(16),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildImageUploadArea() {
-    return Container(
-      height: 180,
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: inputFillColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey, width: 2),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.add_a_photo_outlined, size: 40, color: Colors.grey[400]),
-          const SizedBox(height: 8),
-          Text(
-            "Upload Image",
-            style: TextStyle(
-              color: Colors.grey[500],
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
       ),
     );
   }

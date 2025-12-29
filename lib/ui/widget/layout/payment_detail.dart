@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/order.dart';
-import 'package:orderplus/ui/widget/icon_button.dart';
-import 'package:orderplus/ui/widget/order_item_row.dart';
+import 'package:orderplus/ui/widget/inputs/icon_button.dart';
+import 'package:orderplus/ui/widget/cards/order_item_row.dart';
 
 class PaymentDetailSheet extends StatelessWidget {
   final Order order;
@@ -45,16 +45,12 @@ class PaymentDetailSheet extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    order.tableNumber != null
+                    order.tableNumber != -1
                         ? "Table ${order.tableNumber}"
                         : "Customer",
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
-                    ),
                   ),
                   Text(
-                    "#Order ${order.tableNumber ?? 'N/A'}",
+                    "#Order ${order.tableNumber != -1 ? order.tableNumber : 'N/A'}",
                     style: TextStyle(color: Colors.grey[700]),
                   ),
                 ],
@@ -114,7 +110,10 @@ class PaymentDetailSheet extends StatelessWidget {
             CustomIconButton(
               text: "Confirm Payment",
               color: const Color(0xFFEF6C00),
-              onPressed: onConfirmPayment,
+              onPressed: () {
+                order.markPaid();
+                onConfirmPayment(); 
+              },
             )
           else
             Center(

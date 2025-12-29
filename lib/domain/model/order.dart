@@ -1,23 +1,24 @@
 import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/model/product.dart';
+
 class Order {
+  final int id;
   final DateTime createdAt;
-  final int? tableNumber;
+  final int tableNumber;
 
   OrderStatus _status;
   PaymentStatus _paymentStatus;
 
   final List<OrderItem> _items = [];
 
-  Order({
-    this.tableNumber,
-  })  : createdAt = DateTime.now(),
-        _status = OrderStatus.queued,
-        _paymentStatus = PaymentStatus.unpaid;
+  Order({required this.tableNumber, required this.id})
+    : createdAt = DateTime.now(),
+      _status = OrderStatus.served,
+      _paymentStatus = PaymentStatus.unpaid;
 
   // Read-only access
-  List<OrderItem> get items => List.unmodifiable(_items);
+  List<OrderItem> get items => _items;
   OrderStatus get status => _status;
   PaymentStatus get paymentStatus => _paymentStatus;
 
@@ -40,8 +41,7 @@ class Order {
     _items.remove(item);
   }
 
-  double get totalAmount =>
-      _items.fold(0, (sum, item) => sum + item.subtotal);
+  double get totalAmount => _items.fold(0, (sum, item) => sum + item.subtotal);
 
   void markServed() => _status = OrderStatus.served;
   void cancel() => _status = OrderStatus.cancelled;

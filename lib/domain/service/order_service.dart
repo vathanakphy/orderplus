@@ -13,7 +13,7 @@ class OrderService {
   void _initializeUsedTables() {
     for (var order in _repository.orders) {
       if (_isOrderUsingTable(order)) {
-        _usedTables.add(order.tableNumber!);
+        _usedTables.add(order.tableNumber);
       }
     }
   }
@@ -24,17 +24,19 @@ class OrderService {
   }
 
   bool addOrder(Order order) {
-    final table = order.tableNumber;
-    if (table != null && isTableBusy(table)) return false;
+    final int table = order.tableNumber;
+    if (table != -1 && isTableBusy(table)) return false;
     _repository.addOrder(order);
-    if (_isOrderUsingTable(order)) _usedTables.add(table!);
+    if (_isOrderUsingTable(order) && table != -1) {
+      _usedTables.add(table);
+    }
     return true;
   }
 
   void removeOrder(Order order) {
     _repository.removeOrder(order);
     final table = order.tableNumber;
-    if (table != null) {
+    if (table != -1) {
       final stillUsed = _repository.orders.any(
         (o) => o.tableNumber == table && _isOrderUsingTable(o),
       );
@@ -47,33 +49,43 @@ class OrderService {
   List<Order> getOrdersByStatus(OrderStatus status) =>
       _repository.orders.where((o) => o.status == status).toList();
 
-  List<Order> getOrdersByPaymentStatus(PaymentStatus status) => _repository
-      .orders
-      .where((o) => o.paymentStatus == status && o.status == OrderStatus.served)
-      .toList();
+  List<Order> getOrdersByPaymentStatus(PaymentStatus status) =>
+      _repository.orders.where((o) => o.paymentStatus == status).toList();
 
-  List<Order> getOrdersByTable(int tableNumber) => _repository
-      .orders
-      .where((o) => o.tableNumber == tableNumber)
-      .toList();
+  List<Order> getOrdersByTables(int tableNumber) =>
+      _repository.orders.where((o) => o.tableNumber == tableNumber).toList();
+  
+  Order? getCurrentOrdersByTable(int tableNumber) {
+  try {
+    return _repository.orders.firstWhere(
+      (o) =>
+          o.tableNumber == tableNumber &&
+          o.paymentStatus != PaymentStatus.paid &&
+          o.status != OrderStatus.cancelled,
+    );
+  } catch (e) {
+    return null; 
+  }
+}
 
-  List<int> getBusyTables() => _usedTables.toList();
 
-  List<int> getFreeTables() => _repository
-      .tables
-      .where((t) => !_usedTables.contains(t))
-      .toList();
+
+  List<int> getBusyTables() => _usedTables.where((t) => t > 0).toList();
+
+  List<int> getFreeTables() =>
+      _repository.tables.where((t) => !_usedTables.contains(t)).toList();
 
   bool isTableBusy(int tableNumber) => _usedTables.contains(tableNumber);
 
   bool isTableFree(int tableNumber) => !isTableBusy(tableNumber);
 
   bool _isOrderUsingTable(Order order) {
-    return order.tableNumber != null &&
+    return order.tableNumber != -1 &&
         order.status != OrderStatus.cancelled &&
-        order.status != OrderStatus.served;
+        order.paymentStatus != PaymentStatus.paid;
   }
 
   List<int> get tables => _repository.tables;
-  void addTable(newId) => _repository.addTables(newId);
+  void removeTable(int id) => _repository.tables.remove(id);
+  void addTable(int newId) => _repository.addTable(newId);
 }

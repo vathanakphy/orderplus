@@ -5,7 +5,6 @@ import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
 import 'package:orderplus/ui/screen/table_screen.dart';
 import 'package:orderplus/ui/screen/menu_screen.dart';
-import 'package:orderplus/ui/screen/order_queue_screen.dart';
 import 'package:orderplus/ui/screen/payment_screen.dart';
 
 void main() {
@@ -49,26 +48,25 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
 
   @override
   Widget build(BuildContext context) {
+  
     final screens = [
       TableScreen(orderService: widget.orderService,productService: widget.productService,),
       MenuScreen(productService: widget.productService),
-      OrderQueueScreen(orderService: widget.orderService),
       PaymentScreen(orderService: widget.orderService),
     ];
-
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
         child: IndexedStack(index: _currentIndex, children: screens),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _currentIndex,
-        onDestinationSelected: (index) => setState(() => _currentIndex = index),
-        destinations: const [
-          NavigationDestination(icon: Icon(Icons.table_restaurant), label: 'Tables'),
-          NavigationDestination(icon: Icon(Icons.menu_book), label: 'Menu'),
-          NavigationDestination(icon: Icon(Icons.queue), label: 'Queue'),
-          NavigationDestination(icon: Icon(Icons.payments), label: 'Payments'),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: (index) => setState(() => _currentIndex = index),
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.table_restaurant), label: 'Tables'),
+          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Menu'),
+          // BottomNavigationBarItem(icon: Icon(Icons.queue), label: 'Queue'),
+          BottomNavigationBarItem(icon: Icon(Icons.payments), label: 'Payments'),
         ],
       ),
     );

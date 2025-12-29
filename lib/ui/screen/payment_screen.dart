@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/service/order_service.dart';
-import '../widget/order_payment_card.dart';
-import '../widget/payment_detail.dart';
-import '../widget/search_bar.dart';
-import '../widget/selection_bar.dart';
+import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
+import '../widget/cards/order_payment_card.dart';
+import '../widget/layout/payment_detail.dart';
+import '../widget/inputs/selection_bar.dart';
+
 class PaymentScreen extends StatefulWidget {
   final OrderService orderService;
 
@@ -17,39 +18,20 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   PaymentStatus? _selectedPaymentStatus = PaymentStatus.unpaid;
-  late List<Order> _orders;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadOrders();
-  }
-
-  void _loadOrders() {
-    _orders = _filteredOrders();
-  }
-
-  List<Order> _filteredOrders() {
-    if (_selectedPaymentStatus == null) return widget.orderService.getAllOrders();
-    return widget.orderService.getOrdersByPaymentStatus(_selectedPaymentStatus!);
-  }
 
   void _onFilterSelected(int index) {
     setState(() {
       _selectedPaymentStatus = switch (index) {
-        0 => null,
+        0 => null, // All
         1 => PaymentStatus.unpaid,
-        _ => PaymentStatus.paid,
+        2 => PaymentStatus.paid,
+        _ => null,
       };
-      _loadOrders();
     });
   }
 
   void _confirmPayment(Order order) {
-    setState(() {
-      widget.orderService.payOrder(order);
-      _orders.remove(order); // remove immediately
-    });
+    widget.orderService.payOrder(order);
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -57,6 +39,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         backgroundColor: Colors.green,
       ),
     );
+
+    setState(() {});
   }
 
   void _showOrderDetails(Order order) {
@@ -74,23 +58,48 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  List<Order> _filteredOrders() {
+    final allOrders = widget.orderService.getAllOrders();
+    if (_selectedPaymentStatus == null) return allOrders;
+    return allOrders
+        .where((o) => o.paymentStatus == _selectedPaymentStatus)
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final orders = _filteredOrders();
+
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.all(20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SearchBarComponent(hintText: "Search by order # or customer"),
+              const Text(
+                "Payments",
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              LabeledTextField(
+                controller: TextEditingController(),
+                hintText: "Search by order",
+                labelColor:
+                    Theme.of(context).textTheme.bodyMedium!.color ??
+                    Colors.black,
+                fillColor: Theme.of(
+                  context,
+                ).colorScheme.secondary.withAlpha((0.1 * 255).round()),
+              ),
               const SizedBox(height: 20),
               SelectionBar(
                 items: const ["All", "Unpaid", "Paid"],
                 initialIndex: _selectedPaymentStatus == null
                     ? 0
                     : _selectedPaymentStatus == PaymentStatus.unpaid
-                        ? 1
-                        : 2,
+                    ? 1
+                    : 2,
                 onItemSelected: _onFilterSelected,
               ),
             ],
@@ -99,14 +108,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
         Expanded(
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: _orders.length,
+            itemCount: orders.length,
             separatorBuilder: (_, __) => const SizedBox(height: 15),
             itemBuilder: (_, index) {
-              final order = _orders[index];
+              final order = orders[index];
               return OrderPaymentCard(
-                orderNumber: order.tableNumber?.toString() ?? "Pickup Customer",
+                orderNumber: order.tableNumber == -1
+                    ? "Pickup Customer"
+                    : order.tableNumber.toString(),
                 price: order.totalAmount,
-                customerName: order.tableNumber != null
+                customerName: order.tableNumber != -1
                     ? "Table ${order.tableNumber}"
                     : "Pickup Customer",
                 itemCount: order.items.length,

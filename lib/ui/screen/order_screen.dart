@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import '../widget/category_filter.dart';
-import '../widget/product_card.dart';
-import '../widget/search_bar.dart';
-import '../widget/order_form.dart';
+import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
+import '../widget/inputs/category_filter.dart';
+import '../widget/cards/product_card.dart';
+import '../widget/layout/order_form.dart';
 
 class OrderScreen extends StatefulWidget {
   final int tableId;
@@ -31,7 +32,7 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  late List<OrderItem> _cartItems;
+  late List<OrderItem> _cartItems = [];
   String _selectedCategory = "All";
   String _searchQuery = "";
 
@@ -79,26 +80,52 @@ class _OrderScreenState extends State<OrderScreen> {
   Future<void> _openCheckout() async {
     if (_cartItems.isEmpty) return;
 
-    final order = await showModalBottomSheet(
+    final orderItems = await showModalBottomSheet<List<OrderItem>>(
       context: context,
       isScrollControlled: true,
       builder: (_) => OrderForm(cartItems: _cartItems),
     );
 
-    if (order != null) {
-      widget.orderService.addOrder(order); 
+    if (orderItems == null || orderItems.isEmpty) {
+      setState(() {
+        _cartItems.clear();
+      });
+      return;
+    }
 
-      setState(() => _cartItems.clear());
-      widget.onCartUpdated(_cartItems);
+    final activeOrder = widget.orderService.getCurrentOrdersByTable(
+      widget.tableId,
+    );
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text("Order placed successfully!"),
-            backgroundColor: Colors.green,
-          ),
-        );
+    if (activeOrder != null) {
+      // Push items to existing order
+      for (var item in orderItems) {
+        activeOrder.addItem(item.product, item.quantity, note: item.note);
       }
+    } else {
+      // Create a new order
+      final newOrder = Order(
+        id: widget.orderService.getAllOrders().length + 1,
+        tableNumber: widget.tableId,
+      );
+      for (var item in orderItems) {
+        newOrder.addItem(item.product, item.quantity, note: item.note);
+      }
+      widget.orderService.addOrder(newOrder);
+    }
+
+    // Clear local cart
+    setState(() => _cartItems.clear());
+    widget.onCartUpdated(_cartItems);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Order placed successfully!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+      widget.onBack();
     }
   }
 
@@ -145,14 +172,17 @@ class _OrderScreenState extends State<OrderScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Hook up onChanged to update _searchQuery
-                    SearchBarComponent(
+                    LabeledTextField(
+                      controller: TextEditingController(text: _searchQuery),
                       hintText: "Search for product",
-                      onChanged: (query) {
-                        setState(() {
-                          _searchQuery = query;
-                        });
-                      },
+                      labelColor:
+                          Theme.of(context).textTheme.bodyMedium!.color ??
+                          Colors.black,
+                      fillColor: Theme.of(
+                        context,
+                      ).colorScheme.secondary.withAlpha((0.1 * 255).round()),
+                      onChanged: (query) =>
+                          setState(() => _searchQuery = query),
                     ),
                     const SizedBox(height: 16),
                     CategoryFilter(
