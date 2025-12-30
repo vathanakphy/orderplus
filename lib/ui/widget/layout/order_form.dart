@@ -51,11 +51,7 @@ class _OrderFormState extends State<OrderForm> {
   }
 
   Widget _fallbackImage() {
-    return const Icon(
-      Icons.fastfood,
-      color: Colors.grey,
-      size: 20,
-    );
+    return const Icon(Icons.fastfood, color: Colors.grey, size: 20);
   }
 
   @override
@@ -87,10 +83,7 @@ class _OrderFormState extends State<OrderForm> {
               ),
             ],
           ),
-
           const SizedBox(height: 16),
-
-          // Items list
           Container(
             constraints: const BoxConstraints(maxHeight: 300),
             child: cartItems.isEmpty
@@ -100,15 +93,13 @@ class _OrderFormState extends State<OrderForm> {
                     itemCount: cartItems.length,
                     itemBuilder: (context, index) {
                       final item = cartItems[index];
-
                       return Column(
                         children: [
                           ListTile(
-                            contentPadding:
-                                const EdgeInsets.symmetric(vertical: 8),
-                            leading: _buildProductImage(
-                              item.product.imageUrl,
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 8,
                             ),
+                            leading: _buildProductImage(item.product.imageUrl),
                             title: Text(
                               item.product.name,
                               style: const TextStyle(
@@ -120,7 +111,7 @@ class _OrderFormState extends State<OrderForm> {
                               children: [
                                 QuantityButton(
                                   icon: Icons.remove,
-                                  onPressed: () {
+                                  onTap: () {
                                     setState(() {
                                       if (item.quantity > 1) {
                                         item.quantity -= 1;
@@ -132,8 +123,9 @@ class _OrderFormState extends State<OrderForm> {
                                   },
                                 ),
                                 Container(
-                                  constraints:
-                                      const BoxConstraints(minWidth: 30),
+                                  constraints: const BoxConstraints(
+                                    minWidth: 30,
+                                  ),
                                   alignment: Alignment.center,
                                   child: Text(
                                     "${item.quantity}",
@@ -145,13 +137,10 @@ class _OrderFormState extends State<OrderForm> {
                                 ),
                                 QuantityButton(
                                   icon: Icons.add,
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary,
+                                  color: Theme.of(context).colorScheme.primary,
                                   iconColor: Colors.white,
-                                  onPressed: () => setState(
-                                    () => item.quantity += 1,
-                                  ),
+                                  onTap: () =>
+                                      setState(() => item.quantity += 1),
                                 ),
                               ],
                             ),

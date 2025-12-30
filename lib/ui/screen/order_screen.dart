@@ -4,7 +4,7 @@ import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import 'package:orderplus/ui/widget/inputs/search_bar.dart';
+import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
 import '../widget/inputs/category_filter.dart';
 import '../widget/cards/product_card.dart';
 import '../widget/layout/order_form.dart';
@@ -87,8 +87,7 @@ class _OrderScreenState extends State<OrderScreen> {
     );
 
     if (orderItems == null || orderItems.isEmpty) {
-      setState(() {
-      });
+      setState(() {});
       return;
     }
 
@@ -144,36 +143,26 @@ class _OrderScreenState extends State<OrderScreen> {
 
     return Column(
       children: [
-        Container(
-          height: 60,
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: widget.onBack,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                widget.tableId == -1
-                    ? "Pickup Order"
-                    : "Table ${widget.tableId} Order",
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-            ],
-          ),
-        ),
         Expanded(
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 20,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CustomSearchBar(
-                      hintText: "Search by order",
-                      onChanged: (query) {
+                    SearchAppBar(
+                      backButton: IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        onPressed: widget.onBack,
+                      ),
+                      title: widget.tableId == -1
+                          ? "Pickup Order"
+                          : "Table ${widget.tableId} Order",
+                      onSearchChanged: (query) {
                         setState(() {
                           _searchQuery = query;
                         });

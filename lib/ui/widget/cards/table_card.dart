@@ -8,6 +8,8 @@ class TableCard extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDeleteTap;
   final bool showEditOverlay;
+  final IconData? icon;
+  final Color? titleColor;
 
   const TableCard({
     super.key,
@@ -17,7 +19,7 @@ class TableCard extends StatelessWidget {
     this.statusColor,
     this.color,
     this.onDeleteTap,
-    this.showEditOverlay = false,
+    this.showEditOverlay = false, this.icon, this.titleColor = Colors.black,
   });
 
   @override
@@ -38,9 +40,13 @@ class TableCard extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: 40, color: statusColor ?? Colors.black54),
+                    const SizedBox(height: 8),
+                  ],
                   Text(
                     label,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18,color:titleColor ),
                   ),
                   if (statusLabel != null && statusColor != null) ...[
                     const SizedBox(height: 8),

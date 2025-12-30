@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/ui/widget/inputs/quantity_button.dart';
 
 class OrderItemBox extends StatelessWidget {
   final String title;
@@ -20,17 +21,17 @@ class OrderItemBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Colors extracted from reference
-    const Color titleColor = Color(0xFF1D1B20);
-    const Color noteColor = Color(0xFF9E8A78); 
-    const Color accentColor = Color(0xFFE86A12); 
-    const Color pillBackground = Color(0xFFF4EFE9); 
+    final theme = Theme.of(context);
+    final titleColor = theme.colorScheme.primary; // Use primary from theme
+    final noteColor = theme.colorScheme.secondary; // Use secondary from theme
+    final accentColor = theme.colorScheme.primary; // Accent matches primary
+    final pillBackground = theme.colorScheme.onSecondary.withOpacity(0.3); // Slightly transparent
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
-        color: Colors.transparent, 
-        // borderRadius: BorderRadius.circular(12),
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,7 +43,7 @@ class OrderItemBox extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: titleColor,
@@ -51,7 +52,7 @@ class OrderItemBox extends StatelessWidget {
                 const SizedBox(height: 4),
                 GestureDetector(
                   onTap: onAddNote,
-                  child: const Text(
+                  child: Text(
                     "+ Add note",
                     style: TextStyle(
                       fontSize: 14,
@@ -74,25 +75,25 @@ class OrderItemBox extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    _QuantityButton(
+                    QuantityButton(
                       icon: Icons.remove,
                       color: accentColor,
-                      onTap: onDecrement,
+                      onTap: onDecrement!,
                     ),
                     const SizedBox(width: 12),
                     Text(
                       quantity.toString(),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color: titleColor,
                       ),
                     ),
                     const SizedBox(width: 12),
-                    _QuantityButton(
+                    QuantityButton(
                       icon: Icons.add,
                       color: accentColor,
-                      onTap: onIncrement,
+                      onTap: onIncrement!,
                     ),
                   ],
                 ),
@@ -101,7 +102,7 @@ class OrderItemBox extends StatelessWidget {
               // Price
               Text(
                 "\$${price.toStringAsFixed(2)}",
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
                   color: titleColor,
@@ -110,32 +111,6 @@ class OrderItemBox extends StatelessWidget {
             ],
           ),
         ],
-      ),
-    );
-  }
-}
-
-// Helper widget for the small plus/minus buttons
-class _QuantityButton extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-  final VoidCallback? onTap;
-
-  const _QuantityButton({
-    required this.icon,
-    required this.color,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(4),
-      child: Icon(
-        icon,
-        size: 20,
-        color: color,
       ),
     );
   }

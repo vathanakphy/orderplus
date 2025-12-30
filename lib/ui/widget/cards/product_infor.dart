@@ -1,10 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/utils/flexible_image.dart';
 
 class ProductInfoTile extends StatelessWidget {
   final String title;
   final double price;
-  final String imageUrl; 
+  final String imagePath;
   final double height;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
@@ -13,7 +13,7 @@ class ProductInfoTile extends StatelessWidget {
     super.key,
     required this.title,
     required this.price,
-    required this.imageUrl,
+    required this.imagePath,
     this.height = 90,
     this.onEdit,
     this.onDelete,
@@ -38,19 +38,12 @@ class ProductInfoTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: imageUrl.startsWith('assets/')
-                ? Image.asset(
-                    imageUrl,
-                    width: 75,
-                    height: 75,
-                    fit: BoxFit.cover,
-                  )
-                : Image.file(
-                    File(imageUrl),
-                    width: 75,
-                    height: 75,
-                    fit: BoxFit.cover,
-                  ),
+            child: flexibleImage(
+              imagePath,
+              width: 75,
+              height: 75,
+              fit: BoxFit.cover,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(

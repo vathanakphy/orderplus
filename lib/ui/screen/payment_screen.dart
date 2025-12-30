@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/service/order_service.dart';
-import 'package:orderplus/ui/widget/inputs/search_bar.dart';
+import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
 import '../widget/cards/order_payment_card.dart';
 import '../widget/layout/payment_detail.dart';
 import '../widget/inputs/selection_bar.dart';
@@ -68,31 +69,34 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final orders = _filteredOrders().reversed.toList();
+    List<Order> orders = _filteredOrders().reversed.toList();
 
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                "Payments",
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              CustomSearchBar(
-                hintText: "Search by order",
-                onChanged: (query) {
+              SearchAppBar(
+                titleWidget: SizedBox(
+                  width: 150, 
+                  height: 40, 
+                  child: flexibleImage(
+                    "assets/app_logo.png",
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                onSearchChanged: (query) {
                   setState(() {
-                    orders.where(
-                      (order) => order.id.toString().contains(query),
-                    );
+                    orders = _filteredOrders()
+                        .where((order) => order.id.toString().contains(query))
+                        .toList()
+                        .reversed
+                        .toList();
                   });
                 },
               ),
-
               const SizedBox(height: 20),
               SelectionBar(
                 items: const ["All", "Unpaid", "Paid"],

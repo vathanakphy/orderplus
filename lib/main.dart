@@ -65,7 +65,6 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.table_restaurant), label: 'Tables'),
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Menu'),
-          // BottomNavigationBarItem(icon: Icon(Icons.queue), label: 'Queue'),
           BottomNavigationBarItem(icon: Icon(Icons.payments), label: 'Payments'),
         ],
       ),

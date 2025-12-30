@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import 'package:orderplus/ui/widget/cards/table_card.dart';
+import 'package:orderplus/domain/utils/flexible_image.dart';
+import '../widget/cards/table_card.dart';
 import 'order_screen.dart';
 
 class TableScreen extends StatefulWidget {
@@ -85,49 +86,71 @@ class _TableScreenState extends State<TableScreen> {
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Tables & Areas"),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(isEditMode ? Icons.close : Icons.edit),
-            onPressed: () => setState(() => isEditMode = !isEditMode),
+    return Column(
+      children: [
+        // Top bar
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Flexible(
+                child: flexibleImage(
+                  "assets/app_logo.png",
+                  fit: BoxFit.fitWidth,
+                  width: 150,
+                ),
+              ),
+              IconButton(
+                icon: Icon(isEditMode ? Icons.close : Icons.edit),
+                onPressed: () => setState(() => isEditMode = !isEditMode),
+              ),
+            ],
           ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: GridView.count(
-          crossAxisCount: 3,
-          mainAxisSpacing: 12,
-          crossAxisSpacing: 12,
-          children: [
-            // Pickup tile
-            TableCard(
-              label: "Pickup",
-              color: Colors.deepOrange,
-              onTap: () => _selectTable(-1),
-            ),
-            ...allTables.map((tableId) {
-              return TableCard(
-                label: "Table $tableId",
-                statusLabel: _getStatusLabel(tableId),
-                statusColor: _getStatusColor(tableId),
-                onTap: () => _selectTable(tableId),
-                showEditOverlay: isEditMode,
-                onDeleteTap: () => _deleteTable(tableId),
-              );
-            }),
-          ],
         ),
-      ),
-      floatingActionButton: isEditMode
-          ? FloatingActionButton(
+
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: GridView.count(
+              crossAxisCount: 2,
+              mainAxisSpacing: 12,
+              crossAxisSpacing: 12,
+              childAspectRatio: 1.1,
+              children: [
+                // Pickup tile
+                TableCard(
+                  label: "Pickup",
+                  statusColor: Colors.white,
+                  color: Colors.deepOrange,
+                  icon: Icons.shopping_bag_rounded,
+                  titleColor: Colors.white,
+                  onTap: () => _selectTable(-1),
+                ),
+                ...allTables.map((tableId) {
+                  return TableCard(
+                    label: "Table $tableId",
+                    statusLabel: _getStatusLabel(tableId),
+                    statusColor: _getStatusColor(tableId),
+                    onTap: () => _selectTable(tableId),
+                    showEditOverlay: isEditMode,
+                    onDeleteTap: () => _deleteTable(tableId),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+
+        if (isEditMode)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 12),
+            child: FloatingActionButton(
               onPressed: _addTable,
               child: const Icon(Icons.add),
-            )
-          : null,
+            ),
+          ),
+      ],
     );
   }
 }

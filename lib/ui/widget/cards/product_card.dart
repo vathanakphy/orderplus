@@ -1,5 +1,5 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/utils/flexible_image.dart';
 
 class ProductCard extends StatelessWidget {
   final String title;
@@ -13,7 +13,6 @@ class ProductCard extends StatelessWidget {
     this.onAddTap,
   });
 
-  bool get _isAsset => imagePath.startsWith('assets/');
 
   @override
   Widget build(BuildContext context) {
@@ -39,19 +38,7 @@ class ProductCard extends StatelessWidget {
                 child: SizedBox(
                   height: 140,
                   width: double.infinity,
-                  child: _isAsset
-                      ? Image.asset(
-                          imagePath,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _fallbackImage(),
-                        )
-                      : Image.file(
-                          File(imagePath),
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) =>
-                              _fallbackImage(),
-                        ),
+                  child: flexibleImage(imagePath)
                 ),
               ),
               Positioned(
@@ -88,13 +75,6 @@ class ProductCard extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _fallbackImage() {
-    return Container(
-      color: Colors.grey[200],
-      child: const Icon(Icons.fastfood, color: Colors.grey),
     );
   }
 }

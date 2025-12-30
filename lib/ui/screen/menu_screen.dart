@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import 'package:orderplus/ui/widget/inputs/search_bar.dart';
+import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
 import '../widget/cards/product_infor.dart';
 import '../screen/add_item_screen.dart';
 
@@ -42,22 +43,21 @@ class _MenuScreenState extends State<MenuScreen> {
   }
 
   Future<void> _editProduct(Product product) async {
-  final updated = await showModalBottomSheet<Product>(
-    context: context,
-    isScrollControlled: true,
-    backgroundColor: Colors.white,
-    builder: (_) => AddItemScreen(
-      productService: widget.productService,
-      initialProduct: product,
-    ),
-  );
+    final updated = await showModalBottomSheet<Product>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      builder: (_) => AddItemScreen(
+        productService: widget.productService,
+        initialProduct: product,
+      ),
+    );
 
-  if (updated != null) {
-    widget.productService.updateProduct(product, updated);
-    setState(() {});
+    if (updated != null) {
+      widget.productService.updateProduct(product, updated);
+      setState(() {});
+    }
   }
-}
-
 
   void _deleteProduct(BuildContext context, Product product) async {
     final confirm = await showDialog<bool>(
@@ -102,7 +102,7 @@ class _MenuScreenState extends State<MenuScreen> {
             child: ProductInfoTile(
               title: product.name,
               price: product.price,
-              imageUrl: product.imageUrl,
+              imagePath: product.imageUrl,
               onEdit: () => _editProduct(product),
               onDelete: () => _deleteProduct(context, product),
             ),
@@ -125,23 +125,20 @@ class _MenuScreenState extends State<MenuScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Menu Management",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              child: SearchAppBar(
+                titleWidget: SizedBox(
+                  width: 150,
+                  height: 40,
+                  child: flexibleImage(
+                    "assets/app_logo.png",
+                    fit: BoxFit.contain,
                   ),
-                  const SizedBox(height: 16),
-                  CustomSearchBar(
-                    hintText: "Search by order",
-                    onChanged: (query) {
-                      setState(() {
-                        _searchQuery = query;
-                      });
-                    },
-                  ),
-                ],
+                ),
+                onSearchChanged: (query) {
+                  setState(() {
+                    _searchQuery = query;
+                  });
+                },
               ),
             ),
             Expanded(
