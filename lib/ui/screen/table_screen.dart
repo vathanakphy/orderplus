@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
 import 'package:orderplus/domain/utils/flexible_image.dart';
@@ -23,13 +22,12 @@ class TableScreen extends StatefulWidget {
 class _TableScreenState extends State<TableScreen> {
   int? activeTableId;
   bool isEditMode = false;
-  final Map<int, List<OrderItem>> _tableCarts = {};
 
-  void _addTable() {
+  void _addTable() async {
     final newId = widget.orderService.tables.isEmpty
         ? 1
         : widget.orderService.tables.last + 1;
-    widget.orderService.addTable(newId);
+    await widget.orderService.addTable(newId);
     setState(() {});
   }
 
@@ -51,19 +49,31 @@ class _TableScreenState extends State<TableScreen> {
         ],
       ),
     );
+
     if (confirm == true) {
-      widget.orderService.removeTable(tableId);
-      _tableCarts.remove(tableId);
+      await widget.orderService.removeTable(tableId);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Table $tableId deleted")));
+      }
       setState(() {});
     }
   }
 
-  void _selectTable(int tableId) {
-    setState(() => activeTableId = tableId);
-    _tableCarts[tableId] = [];
+  void _openOrder(int tableId) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => OrderScreen(
+          tableId: tableId,
+          orderService: widget.orderService,
+          productService: widget.productService,
+        ),
+      ),
+    );
+    setState(() {});
   }
-
-  void _closeOrder() => setState(() => activeTableId = null);
 
   Color _getStatusColor(int tableId) =>
       widget.orderService.isTableBusy(tableId) ? Colors.orange : Colors.green;
@@ -74,23 +84,11 @@ class _TableScreenState extends State<TableScreen> {
   @override
   Widget build(BuildContext context) {
     final allTables = widget.orderService.tables;
-
-    if (activeTableId != null) {
-      return OrderScreen(
-        tableId: activeTableId!,
-        cartItems: _tableCarts[activeTableId!]!,
-        onBack: _closeOrder,
-        onCartUpdated: (items) => _tableCarts[activeTableId!] = items,
-        orderService: widget.orderService,
-        productService: widget.productService,
-      );
-    }
-
     return Column(
       children: [
         // Top bar
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -108,7 +106,6 @@ class _TableScreenState extends State<TableScreen> {
             ],
           ),
         ),
-
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(12),
@@ -118,21 +115,21 @@ class _TableScreenState extends State<TableScreen> {
               crossAxisSpacing: 12,
               childAspectRatio: 1.1,
               children: [
-                // Pickup tile
+                // Pickup
                 TableCard(
                   label: "Pickup",
                   statusColor: Colors.white,
                   color: Colors.deepOrange,
                   icon: Icons.shopping_bag_rounded,
                   titleColor: Colors.white,
-                  onTap: () => _selectTable(-1),
+                  onTap: () => _openOrder(-1),
                 ),
                 ...allTables.map((tableId) {
                   return TableCard(
                     label: "Table $tableId",
                     statusLabel: _getStatusLabel(tableId),
                     statusColor: _getStatusColor(tableId),
-                    onTap: () => _selectTable(tableId),
+                    onTap: () => _openOrder(tableId),
                     showEditOverlay: isEditMode,
                     onDeleteTap: () => _deleteTable(tableId),
                   );
@@ -141,7 +138,6 @@ class _TableScreenState extends State<TableScreen> {
             ),
           ),
         ),
-
         if (isEditMode)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),

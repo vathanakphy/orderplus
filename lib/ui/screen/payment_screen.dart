@@ -19,17 +19,7 @@ class PaymentScreen extends StatefulWidget {
 
 class _PaymentScreenState extends State<PaymentScreen> {
   PaymentStatus? _selectedPaymentStatus = PaymentStatus.unpaid;
-
-  void _onFilterSelected(int index) {
-    setState(() {
-      _selectedPaymentStatus = switch (index) {
-        0 => null, // All
-        1 => PaymentStatus.unpaid,
-        2 => PaymentStatus.paid,
-        _ => null,
-      };
-    });
-  }
+  String _searchQuery = "";
 
   void _confirmPayment(Order order) {
     widget.orderService.payOrder(order);
@@ -41,7 +31,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
 
-    setState(() {});
+    setState(() {
+    });
   }
 
   void _showOrderDetails(Order order) {
@@ -61,8 +52,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    List<Order> orders = widget.orderService.filterOrders();
-
+    final orders = widget.orderService.filterOrders(
+      paymentStatus: _selectedPaymentStatus,
+      idQuery: _searchQuery,
+    );
     return Column(
       children: [
         Padding(
@@ -81,9 +74,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 onSearchChanged: (query) {
                   setState(() {
-                    orders = widget.orderService
-                        .filterOrders(idQuery: query)
-                        .toList();
+                    _searchQuery = query;
                   });
                 },
               ),
@@ -95,7 +86,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     : _selectedPaymentStatus == PaymentStatus.unpaid
                     ? 1
                     : 2,
-                onItemSelected: _onFilterSelected,
+                onItemSelected: (index) {
+                  setState(() {
+                    _selectedPaymentStatus = switch (index) {
+                      0 => null,
+                      1 => PaymentStatus.unpaid,
+                      2 => PaymentStatus.paid,
+                      _ => null,
+                    };
+                  });
+                },
               ),
             ],
           ),

@@ -6,7 +6,7 @@ import 'package:orderplus/domain/model/product.dart';
 // --------------------
 // Seed Products
 // --------------------
-void seedProducts(ProductRepository repo) {
+Future<void> seedProducts(ProductRepository repo) async {
   const img = 'assets/burgur.png';
 
   final products = <Product>[
@@ -23,32 +23,39 @@ void seedProducts(ProductRepository repo) {
   ];
 
   for (final p in products) {
-    repo.add(p);
-    repo.addCategory(p.category);
+    await repo.add(p);
   }
+
+  await repo.saveCategories(products.map((p) => p.category).toSet().toList());
 }
 
 // --------------------
 // Seed Orders
 // --------------------
-void seedOrders(OrderRepository repo, List<Product> products) {
-  // Add available tables to the system
-  repo.addTables([1, 2, 3, 4, 5]);
+Future<void> seedOrders(OrderRepository repo, List<Product> products) async {
+  await repo.addTables([1, 2, 3, 4, 5]);
 
-  // Prevent crashing if product list is empty
   if (products.isEmpty) return;
 
-  final order1 = Order(id: 1,tableNumber: 1)
-    ..addItem(products.firstWhere((p) => p.name == 'Classic Burger'), 2)
-    ..addItem(products.firstWhere((p) => p.name == 'Cola Drink'), 2);
+  // --------------------
+  // Direct access by index (products list order is controlled)
+  // --------------------
 
-  final order2 = Order(id: 2,tableNumber: 2)
-    ..addItem(products.firstWhere((p) => p.name == 'Margherita Pizza'), 1)
-    ..addItem(products.firstWhere((p) => p.name == 'Lemonade'), 1);
+  // Order 1
+  final order1 = Order(id: 1, tableNumber: 1);
+  order1.addItem(products[0], 2); // Classic Burger (index 0)
+  order1.addItem(products[5], 2); // Cola Drink (index 5)
 
-  final order3 = Order(id: 3,tableNumber: 3)
-    ..addItem(products.firstWhere((p) => p.name == 'Pepperoni Pizza'), 1)
-    ..addItem(products.firstWhere((p) => p.name == 'Iced Tea'), 2)
+  // Order 2
+  final order2 = Order(id: 2, tableNumber: 2);
+  order2.addItem(products[2], 1); // Margherita Pizza (index 2)
+  order2.addItem(products[6], 1); // Lemonade (index 6)
+
+  // Order 3
+  final order3 = Order(id: 3, tableNumber: 3);
+  order3.addItem(products[3], 1); // Pepperoni Pizza (index 3)
+  order3.addItem(products[7], 2); // Iced Tea (index 7)
+  order3
     ..markPaid()
     ..markServed();
 
@@ -56,4 +63,16 @@ void seedOrders(OrderRepository repo, List<Product> products) {
   repo.addOrder(order1);
   repo.addOrder(order2);
   repo.addOrder(order3);
+  repo.usedTables.addAll([1, 2]);
+}
+
+// --------------------
+// Seed All Data
+// --------------------
+Future<void> seedAllData(ProductRepository productRepo, OrderRepository orderRepo) async {
+  await seedProducts(productRepo);
+
+  // Access products by index after seeding
+  final allProducts = productRepo.getAll();
+  await seedOrders(orderRepo, allProducts);
 }

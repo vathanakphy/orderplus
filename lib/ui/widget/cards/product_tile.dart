@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/utils/flexible_image.dart';
 
-class ProductInfoTile extends StatelessWidget {
+class ProductTile extends StatelessWidget {
   final String title;
   final double price;
   final String imagePath;
@@ -9,7 +9,7 @@ class ProductInfoTile extends StatelessWidget {
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
-  const ProductInfoTile({
+  const ProductTile({
     super.key,
     required this.title,
     required this.price,

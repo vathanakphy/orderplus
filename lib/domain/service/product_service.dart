@@ -7,55 +7,43 @@ class ProductService {
   ProductService(this._repository);
 
   List<Product> getAllProducts() => _repository.products;
-  List<String> getAllCategories() => ["All", "Top"] + _repository.categories;
+  List<String> getAllCategories() =>
+      ["All", "Top"] + _repository.categories;
 
-  List<Product> getAvailableProducts() =>
-      _repository.products.where((p) => p.isAvailable).toList();
-
-  List<Product> getUnavailableProducts() =>
-      _repository.products.where((p) => !p.isAvailable).toList();
+  List<Product> getAvailableProducts() => filterProducts(isAvailable: true);
+  List<Product> getUnavailableProducts() => filterProducts(isAvailable: false);
 
   List<Product> getProductsByCategory(String category) =>
-      _repository.products.where((p) => p.category == category).toList();
+      _repository.products
+          .where((p) => p.category == category)
+          .toList();
 
-  List<Product> getAvailableByCategory(String category) => _repository.products
-      .where((p) => p.category == category && p.isAvailable)
-      .toList();
+  List<Product> getAvailableByCategory(String category) =>
+      filterProducts(category: category, isAvailable: true);
 
-  void markAvailable(Product product) => product.markAvailable();
-  void markUnavailable(Product product) => product.markUnavailable();
-
-  void deleteProduct(Product product) {
-    _repository.products.remove(product);
+  Future<void> deleteProduct(Product product) async {
+    await _repository.removeById(product.id);
   }
 
-  void addProduct(Product product) {
-    _repository.products.add(product);
+  Future<void> addProduct(Product product) async {
+    await _repository.add(product);
   }
 
-  void updateProduct(Product oldProduct, Product updatedProduct) {
-    final index = _repository.products.indexOf(oldProduct);
-    if (index != -1) {
-      _repository.products[index] = updatedProduct;
-    }
+  Future<void> updateProduct(Product updatedProduct) async {
+    await _repository.update(updatedProduct);
   }
 
   List<Product> filterProducts({
     String category = "All",
     String searchQuery = "",
+    bool isAvailable = true,
   }) {
-    List<Product> filtered = category == "All"
-        ? _repository.products
-        : _repository.products.where((p) => p.category == category).toList();
-
-    if (searchQuery.isNotEmpty) {
-      final lowerQuery = searchQuery.toLowerCase();
-      filtered = filtered.where((p) {
-        return p.name.toLowerCase().contains(lowerQuery) ||
-            p.id.toString().contains(lowerQuery);
-      }).toList();
-    }
-
-    return filtered;
+    return _repository
+        .getAll(
+          category: category == "All" ? null : category,
+          searchQuery: searchQuery,
+        )
+        .where((p) => p.isAvailable == isAvailable)
+        .toList();
   }
 }

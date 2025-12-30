@@ -14,4 +14,21 @@ class OrderItem {
   });
 
   double get subtotal => priceAtOrder * quantity;
+
+  Map<String, dynamic> toMap(int orderId) => {
+    'orderId': orderId,
+    'productId': product.id,
+    'quantity': quantity,
+    'priceAtOrder': priceAtOrder,
+    'note': note,
+  };
+
+  static OrderItem fromMap(Map<String, dynamic> map, Product product) {
+    return OrderItem(
+      product: product,
+      quantity: map['quantity'],
+      priceAtOrder: map['priceAtOrder'],
+      note: map['note'],
+    );
+  }
 }

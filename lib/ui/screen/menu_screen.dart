@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/product_service.dart';
 import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/inputs/delete_alert.dart';
 import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
-import '../widget/cards/product_infor.dart';
+import '../widget/cards/product_tile.dart';
 import '../widget/layout/add_item_modal.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -33,7 +34,8 @@ class _MenuScreenState extends State<MenuScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      builder: (_) => AddItemScreen(productService: widget.productService),
+      builder: (context) =>
+          AddItemScreen(productService: widget.productService),
     );
 
     if (product != null) {
@@ -47,41 +49,32 @@ class _MenuScreenState extends State<MenuScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      builder: (_) => AddItemScreen(
+      builder: (context) => AddItemScreen(
         productService: widget.productService,
         initialProduct: product,
       ),
     );
 
     if (updated != null) {
-      widget.productService.updateProduct(product, updated);
+      widget.productService.updateProduct(updated);
       setState(() {});
     }
   }
 
-  void _deleteProduct(BuildContext context, Product product) async {
-    final confirm = await showDialog<bool>(
+  void _deleteProduct(Product product) async {
+    final confirmed = await showDeleteDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Confirm Deletion"),
-        content: Text("Are you sure you want to delete '${product.name}'?"),
-        actions: [
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text("Delete"),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text("Cancel"),
-          ),
-        ],
-      ),
+      title: "Confirm Deletion",
+      content: "Are you sure you want to delete '${product.name}'?",
     );
-
-    if (confirm == true) {
-      setState(() {
-        widget.productService.deleteProduct(product);
-      });
+    if (!mounted) return;
+    if (confirmed == true) {
+      await widget.productService.deleteProduct(product);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Product '${product.name}' deleted")),
+      );
+      setState(() {});
     }
   }
 
@@ -99,12 +92,12 @@ class _MenuScreenState extends State<MenuScreen> {
         for (final product in products)
           Padding(
             padding: const EdgeInsets.only(bottom: 12),
-            child: ProductInfoTile(
+            child: ProductTile(
               title: product.name,
               price: product.price,
               imagePath: product.imageUrl,
               onEdit: () => _editProduct(product),
-              onDelete: () => _deleteProduct(context, product),
+              onDelete: () => _deleteProduct(product),
             ),
           ),
         const SizedBox(height: 25),

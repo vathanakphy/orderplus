@@ -17,7 +17,6 @@ class Order {
       _status = OrderStatus.served,
       _paymentStatus = PaymentStatus.unpaid;
 
-  // Read-only access
   List<OrderItem> get items => _items;
   OrderStatus get status => _status;
   PaymentStatus get paymentStatus => _paymentStatus;
@@ -37,6 +36,8 @@ class Order {
     );
   }
 
+  void markPaid() => _paymentStatus = PaymentStatus.paid;
+
   void removeItem(OrderItem item) {
     _items.remove(item);
   }
@@ -46,7 +47,26 @@ class Order {
   void markServed() => _status = OrderStatus.served;
   void cancel() => _status = OrderStatus.cancelled;
 
-  void markPaid() => _paymentStatus = PaymentStatus.paid;
-
   bool get isPaid => _paymentStatus == PaymentStatus.paid;
+
+  Map<String, dynamic> toMap() => {
+    'id': id,
+    'tableNumber': tableNumber,
+    'status': _status.name,
+    'paymentStatus': _paymentStatus.name,
+    'createdAt': createdAt.toIso8601String(),
+  };
+
+  factory Order.fromMap(Map<String, dynamic> map) {
+    final order = Order(id: map['id'], tableNumber: map['tableNumber']);
+
+    order._status = OrderStatus.values.firstWhere(
+      (e) => e.name == map['status'],
+    );
+    order._paymentStatus = PaymentStatus.values.firstWhere(
+      (e) => e.name == map['paymentStatus'],
+    );
+
+    return order;
+  }
 }

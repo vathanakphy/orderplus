@@ -1,48 +1,86 @@
 import 'package:orderplus/data/order_repository.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/enum.dart';
+import 'package:orderplus/domain/model/order_item.dart';
+import 'package:orderplus/domain/model/product.dart';
 
 class OrderService {
   final OrderRepository _repository;
-  final Set<int> _usedTables = {};
+  final Map<int, List<OrderItem>> _tableCarts = {};
 
   OrderService({required OrderRepository repository})
-    : _repository = repository {
-    _initializeUsedTables();
+    : _repository = repository;
+
+  // Cart
+  void addToCart(int tableId, Product product) {
+    final cart = _tableCarts.putIfAbsent(tableId, () => []);
+    final existingItem = cart.firstWhere(
+      (i) => i.product.id == product.id,
+      orElse: () =>
+          OrderItem(product: product, quantity: 0, priceAtOrder: product.price),
+    );
+    if (cart.contains(existingItem)) {
+      existingItem.quantity += 1;
+    } else {
+      existingItem.quantity = 1;
+      cart.add(existingItem);
+    }
   }
 
-  void _initializeUsedTables() {
-    for (var order in _repository.orders) {
-      if (_isOrderUsingTable(order)) {
-        _usedTables.add(order.tableNumber);
+  int getQuantity(int tableId, Product product) {
+    final cart = _tableCarts[tableId] ?? [];
+    final item = cart.firstWhere(
+      (i) => i.product.id == product.id,
+      orElse: () =>
+          OrderItem(product: product, quantity: 0, priceAtOrder: product.price),
+    );
+    return item.quantity;
+  }
+
+  List<OrderItem> getCartItems(int tableId) =>
+      List.from(_tableCarts[tableId] ?? []);
+
+  void clearCart(int tableId) => _tableCarts[tableId]?.clear();
+
+  // Orders
+
+  Future<bool> placeOrder({
+    required int tableId,
+    required List<OrderItem> items,
+  }) async {
+    if (items.isEmpty) return false;
+
+    final activeOrder = getCurrentOrdersByTable(tableId);
+
+    if (activeOrder != null) {
+      for (var item in items) {
+        final index = activeOrder.items.indexWhere(
+          (i) => i.product.id == item.product.id,
+        );
+        if (index != -1) {
+          activeOrder.items.elementAt(index).quantity += item.quantity;
+          continue;
+        }
+        activeOrder.addItem(item.product, item.quantity, note: item.note);
       }
+    } else {
+      final newOrder = Order(
+        id: getAllOrders().length + 1,
+        tableNumber: tableId,
+      );
+      for (var item in items) {
+        newOrder.addItem(item.product, item.quantity, note: item.note);
+      }
+      await _repository.addUsedTable(tableId);
+      _repository.addOrder(newOrder);
     }
+
+    return true;
   }
 
   void payOrder(Order order) {
     order.markPaid();
-    _usedTables.remove(order.tableNumber);
-  }
-
-  bool addOrder(Order order) {
-    final int table = order.tableNumber;
-    if (table != -1 && isTableBusy(table)) return false;
-    _repository.addOrder(order);
-    if (_isOrderUsingTable(order) && table != -1) {
-      _usedTables.add(table);
-    }
-    return true;
-  }
-
-  void removeOrder(Order order) {
-    _repository.removeOrder(order);
-    final table = order.tableNumber;
-    if (table != -1) {
-      final stillUsed = _repository.orders.any(
-        (o) => o.tableNumber == table && _isOrderUsingTable(o),
-      );
-      if (!stillUsed) _usedTables.remove(table);
-    }
+    _repository.removeUsedTable(order.tableNumber);
   }
 
   List<Order> getAllOrders() => _repository.orders;
@@ -61,37 +99,28 @@ class OrderService {
       return _repository.orders.firstWhere(
         (o) =>
             o.tableNumber == tableNumber &&
-            o.paymentStatus != PaymentStatus.paid &&
-            o.status != OrderStatus.cancelled,
+            o.tableNumber != -1 &&
+            o.paymentStatus != PaymentStatus.paid,
       );
     } catch (e) {
       return null;
     }
   }
 
-  List<int> getBusyTables() => _usedTables.where((t) => t > 0).toList();
+  // Tables
+  List<int> getBusyTables() => _repository.usedTables;
 
-  List<int> getFreeTables() =>
-      _repository.tables.where((t) => !_usedTables.contains(t)).toList();
-
-  bool isTableBusy(int tableNumber) => _usedTables.contains(tableNumber);
-
-  bool isTableFree(int tableNumber) => !isTableBusy(tableNumber);
-
-  bool _isOrderUsingTable(Order order) {
-    return order.tableNumber != -1 &&
-        order.status != OrderStatus.cancelled &&
-        order.paymentStatus != PaymentStatus.paid;
+  bool isTableBusy(int tableNumber) {
+    final used = _repository.usedTables;
+    return used.contains(tableNumber);
   }
 
   List<int> get tables => _repository.tables;
-  void removeTable(int id) => _repository.tables.remove(id);
-  void addTable(int newId) => _repository.addTable(newId);
 
-  List<Order> filterOrders({
-    PaymentStatus? paymentStatus,
-    String? idQuery, 
-  }) {
+  Future<void> addTable(int newId) async => _repository.addTable(newId);
+  Future<void> removeTable(int id) async => _repository.removeTable(id);
+
+  List<Order> filterOrders({PaymentStatus? paymentStatus, String? idQuery}) {
     List<Order> filtered = _repository.orders;
 
     if (paymentStatus != null) {
@@ -101,12 +130,10 @@ class OrderService {
     }
 
     if (idQuery != null && idQuery.isNotEmpty) {
-      final query = idQuery.toLowerCase();
       filtered = filtered
-          .where((o) => o.id.toString().contains(query))
+          .where((o) => o.id.toString().contains(idQuery))
           .toList();
     }
-
     return filtered;
   }
 }

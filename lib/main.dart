@@ -1,14 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/data/design_config.dart';
-import 'package:orderplus/data/instances.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
 import 'package:orderplus/ui/screen/table_screen.dart';
 import 'package:orderplus/ui/screen/menu_screen.dart';
 import 'package:orderplus/ui/screen/payment_screen.dart';
+import 'package:orderplus/data/order_repository.dart';
+import 'package:orderplus/data/product_repository.dart';
+import 'package:orderplus/data/sample_data.dart';
 
-void main() {
-  initializeData(); 
+late final OrderService orderService;
+late final ProductService productService;
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final orderRepo = OrderRepository();
+  final productRepo = ProductRepository();
+
+  await orderRepo.clearData();
+  await productRepo.clearData();
+
+  await seedProducts(productRepo);
+  final products = productRepo.getAll();
+  await seedOrders(orderRepo, products);
+  productService = ProductService(productRepo);
+  orderService = OrderService(repository: orderRepo);
   runApp(const MyApp());
 }
 
@@ -48,9 +65,11 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
 
   @override
   Widget build(BuildContext context) {
-  
     final screens = [
-      TableScreen(orderService: widget.orderService,productService: widget.productService,),
+      TableScreen(
+        orderService: widget.orderService,
+        productService: widget.productService,
+      ),
       MenuScreen(productService: widget.productService),
       PaymentScreen(orderService: widget.orderService),
     ];
@@ -63,9 +82,15 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
         currentIndex: _currentIndex,
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.table_restaurant), label: 'Tables'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.table_restaurant),
+            label: 'Tables',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Menu'),
-          BottomNavigationBarItem(icon: Icon(Icons.payments), label: 'Payments'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.payments),
+            label: 'Payments',
+          ),
         ],
       ),
     );
