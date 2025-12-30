@@ -59,17 +59,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
-  List<Order> _filteredOrders() {
-    final allOrders = widget.orderService.getAllOrders();
-    if (_selectedPaymentStatus == null) return allOrders;
-    return allOrders
-        .where((o) => o.paymentStatus == _selectedPaymentStatus)
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
-    List<Order> orders = _filteredOrders().reversed.toList();
+    List<Order> orders = widget.orderService.filterOrders();
 
     return Column(
       children: [
@@ -80,8 +72,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             children: [
               SearchAppBar(
                 titleWidget: SizedBox(
-                  width: 150, 
-                  height: 40, 
+                  width: 150,
+                  height: 40,
                   child: flexibleImage(
                     "assets/app_logo.png",
                     fit: BoxFit.contain,
@@ -89,10 +81,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ),
                 onSearchChanged: (query) {
                   setState(() {
-                    orders = _filteredOrders()
-                        .where((order) => order.id.toString().contains(query))
-                        .toList()
-                        .reversed
+                    orders = widget.orderService
+                        .filterOrders(idQuery: query)
                         .toList();
                   });
                 },

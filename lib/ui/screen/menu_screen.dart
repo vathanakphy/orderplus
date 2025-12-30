@@ -4,7 +4,7 @@ import 'package:orderplus/domain/service/product_service.dart';
 import 'package:orderplus/domain/utils/flexible_image.dart';
 import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
 import '../widget/cards/product_infor.dart';
-import '../screen/add_item_screen.dart';
+import '../widget/layout/add_item_modal.dart';
 
 class MenuScreen extends StatefulWidget {
   final ProductService productService;
@@ -117,7 +117,7 @@ class _MenuScreenState extends State<MenuScreen> {
     final categories = widget.productService.getAllCategories();
     final products = _searchQuery.isEmpty
         ? widget.productService.getAllProducts()
-        : widget.productService.searchProducts(_searchQuery);
+        : widget.productService.filterProducts(searchQuery: _searchQuery);
 
     return Stack(
       children: [

@@ -40,10 +40,22 @@ class ProductService {
     }
   }
 
-  List<Product> searchProducts(String query) {
-    final lowerQuery = query.toLowerCase();
-    return _repository.products
-        .where((p) => p.name.toLowerCase().contains(lowerQuery))
-        .toList();
+  List<Product> filterProducts({
+    String category = "All",
+    String searchQuery = "",
+  }) {
+    List<Product> filtered = category == "All"
+        ? _repository.products
+        : _repository.products.where((p) => p.category == category).toList();
+
+    if (searchQuery.isNotEmpty) {
+      final lowerQuery = searchQuery.toLowerCase();
+      filtered = filtered.where((p) {
+        return p.name.toLowerCase().contains(lowerQuery) ||
+            p.id.toString().contains(lowerQuery);
+      }).toList();
+    }
+
+    return filtered;
   }
 }

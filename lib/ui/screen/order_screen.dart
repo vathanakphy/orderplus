@@ -129,17 +129,10 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final allProducts = widget.productService.getAllProducts();
-    var filteredProducts = _selectedCategory == "All"
-        ? allProducts
-        : allProducts.where((p) => p.category == _selectedCategory).toList();
-    if (_searchQuery.isNotEmpty) {
-      filteredProducts = filteredProducts
-          .where(
-            (p) => p.name.toLowerCase().contains(_searchQuery.toLowerCase()),
-          )
-          .toList();
-    }
+    final filteredProducts = widget.productService.filterProducts(
+      category: _selectedCategory,
+      searchQuery: _searchQuery,
+    );
 
     return Column(
       children: [
@@ -194,6 +187,7 @@ class _OrderScreenState extends State<OrderScreen> {
                           return Stack(
                             children: [
                               ProductCard(
+                                id: product.id,
                                 title: product.name,
                                 imagePath: product.imageUrl,
                                 onAddTap: () => _addToCart(product),

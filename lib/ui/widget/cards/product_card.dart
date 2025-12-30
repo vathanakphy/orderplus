@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:orderplus/domain/utils/flexible_image.dart';
 
 class ProductCard extends StatelessWidget {
+  final int id;
   final String title;
   final String imagePath; // asset OR file path
   final VoidCallback? onAddTap;
@@ -11,8 +12,8 @@ class ProductCard extends StatelessWidget {
     required this.title,
     required this.imagePath,
     this.onAddTap,
+    required this.id,
   });
-
 
   @override
   Widget build(BuildContext context) {
@@ -38,7 +39,7 @@ class ProductCard extends StatelessWidget {
                 child: SizedBox(
                   height: 140,
                   width: double.infinity,
-                  child: flexibleImage(imagePath)
+                  child: flexibleImage(imagePath),
                 ),
               ),
               Positioned(
@@ -61,7 +62,7 @@ class ProductCard extends StatelessWidget {
             ],
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 2),
             child: Text(
               title,
               style: const TextStyle(
@@ -71,6 +72,13 @@ class ProductCard extends StatelessWidget {
               ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+            child: Text(
+              "ID: $id",
+              style: const TextStyle(fontSize: 14, color: titleColor),
             ),
           ),
         ],
