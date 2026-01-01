@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/product_service.dart';
+import 'package:orderplus/main.dart';
 import 'package:orderplus/ui/widget/inputs/image_upload_area.dart';
 import 'package:orderplus/ui/widget/inputs/category_selector.dart';
 import 'package:orderplus/ui/widget/inputs/icon_button.dart';
@@ -51,7 +52,9 @@ class _AddItemModalState extends State<AddItemModal> {
       selectedImagePath = p.imageUrl;
       iniPorductId = p.id;
     } else {
-      selectedCategory = categories.isNotEmpty ? categories.first : "Uncategorized";
+      selectedCategory = categories.isNotEmpty
+          ? categories.first
+          : "Uncategorized";
       selectedImagePath = null;
       iniPorductId = widget.productService.getAllProducts().isEmpty
           ? 1
@@ -172,7 +175,8 @@ class _AddItemModalState extends State<AddItemModal> {
               selectedCategory: selectedCategory,
               onCategorySelected: (value) =>
                   setState(() => selectedCategory = value),
-              onAddCategory: (newCat) {
+              onAddCategory: (newCat) async {
+                await productService.addCategory(newCat);
                 setState(() {
                   categories.add(newCat);
                   selectedCategory = newCat;

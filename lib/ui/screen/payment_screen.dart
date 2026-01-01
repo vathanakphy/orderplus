@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/service/order_service.dart';
@@ -107,35 +108,48 @@ class _PaymentScreenState extends State<PaymentScreen> {
             itemCount: orders.length,
             itemBuilder: (context, index) {
               final order = orders[index];
-              return Dismissible(
-                direction: DismissDirection.endToStart,
-                confirmDismiss: (direction) async {
-                  if (!order.isPaid && !order.isCancelled) {
-                    final result = await showDeleteDialog(
-                      context: context,
-                      confirmText: "Confirm",
-                      title: "Cancel Order",
-                      cancelText: "Cancel",
-                      content:
-                          "Are you sure you want to Cancel Order #${order.id}?",
-                    );
-                    return result;
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Cannot be canceled.")),
-                    );
-                    return false;
-                  }
-                },
-                onDismissed: (direction) async {
-                  setState(() {
-                    orders.removeAt(index);
-                  });
-                  await widget.orderService.cancelOrder(order);
-                },
-                key: Key(order.id.toString()),
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 15),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 15),
+                child: Slidable(
+                  key: Key(order.id.toString()),
+                  endActionPane: ActionPane(
+                    motion: const ScrollMotion(),
+                    children: [
+                      SlidableAction(
+                        onPressed: (context) async {
+                          // Only allow cancel if order is unpaid and not cancelled
+                          if (!order.isPaid && !order.isCancelled) {
+                            final confirmed =
+                                await showDeleteDialog(
+                                  context: context,
+                                  confirmText: "Confirm",
+                                  title: "Cancel Order",
+                                  cancelText: "Cancel",
+                                  content:
+                                      "Are you sure you want to Cancel Order #${order.id}?",
+                                ) ??
+                                false;
+                            if (confirmed) {
+                              setState(() {
+                                order.cancel();
+                              });
+                              await widget.orderService.cancelOrder(order);
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Cannot be canceled."),
+                              ),
+                            );
+                          }
+                        },
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        icon: Icons.cancel,
+                        label: 'Cancel',
+                      ),
+                    ],
+                  ),
                   child: OrderPaymentCard(
                     order: order,
                     onTap: () => _showOrderDetails(order),

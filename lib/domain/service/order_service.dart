@@ -35,8 +35,7 @@ class OrderService {
     return item.quantity;
   }
 
-  List<OrderItem> getCartItems() =>
-      List.from(cart);
+  List<OrderItem> getCartItems() => List.from(cart);
 
   void clearCart() => cart.clear();
 
@@ -49,7 +48,7 @@ class OrderService {
     if (items.isEmpty) return false;
 
     final activeOrder = getCurrentOrdersByTable(tableId);
-
+    print('Active Order: $activeOrder'); 
     if (activeOrder != null) {
       for (var item in items) {
         final index = activeOrder.items.indexWhere(
@@ -75,16 +74,18 @@ class OrderService {
 
     return true;
   }
+
   Future<void> cancelOrder(Order order) async {
     order.cancel();
     await _repository.updateOrder(order);
-    if(order.tableNumber != -1){
+    if (order.tableNumber != -1) {
       _repository.removeUsedTable(order.tableNumber);
     }
   }
+
   Future<void> payOrder(Order order) async {
     order.markPaid();
-    if(order.tableNumber != -1){
+    if (order.tableNumber != -1) {
       _repository.removeUsedTable(order.tableNumber);
     }
     await _repository.updateOrder(order);
@@ -106,8 +107,8 @@ class OrderService {
       return _repository.orders.firstWhere(
         (o) =>
             o.tableNumber == tableNumber &&
-            o.tableNumber != -1 &&
-            o.paymentStatus != PaymentStatus.paid,
+            o.paymentStatus != PaymentStatus.paid &&
+            !o.isCancelled,
       );
     } catch (e) {
       return null;
@@ -127,7 +128,11 @@ class OrderService {
   Future<void> addTable(int newId) async => _repository.addTable(newId);
   Future<void> removeTable(int id) async => _repository.removeTable(id);
 
-  List<Order> filterOrders({PaymentStatus? paymentStatus, String? idQuery ,bool isASC = true}) {
+  List<Order> filterOrders({
+    PaymentStatus? paymentStatus,
+    String? idQuery,
+    bool isASC = true,
+  }) {
     List<Order> filtered = _repository.orders;
 
     if (paymentStatus != null) {
@@ -141,9 +146,9 @@ class OrderService {
           .where((o) => o.id.toString().contains(idQuery))
           .toList();
     }
-    if(!isASC){
+    if (!isASC) {
       filtered = filtered.reversed.toList();
-    } 
+    }
     return filtered;
   }
 }

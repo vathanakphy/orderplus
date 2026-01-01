@@ -32,6 +32,9 @@ class ProductService {
   Future<void> updateProduct(Product updatedProduct) async {
     await _repository.update(updatedProduct);
   }
+  Future<void> addCategory(String category) async {
+    await _repository.addCategory(category);
+  }
 
   List<Product> filterProducts({
     String category = "All",

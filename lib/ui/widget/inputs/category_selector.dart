@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class CategorySelector extends StatelessWidget {
@@ -47,18 +46,18 @@ class CategorySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final uniqueCategories = categories.toSet().toList();
     return Row(
       children: [
         Expanded(
           child: DropdownButton<String>(
             isExpanded: true,
-            value: selectedCategory,
+            value: uniqueCategories.contains(selectedCategory)
+                ? selectedCategory
+                : null,
             hint: const Text('Select category'),
-            items: categories.map((cat) {
-              return DropdownMenuItem(
-                value: cat,
-                child: Text(cat),
-              );
+            items: uniqueCategories.map((cat) {
+              return DropdownMenuItem(value: cat, child: Text(cat));
             }).toList(),
             onChanged: (value) {
               if (value != null) onCategorySelected(value);

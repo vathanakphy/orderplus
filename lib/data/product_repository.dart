@@ -90,7 +90,12 @@ class ProductRepository {
 
     await database.delete('products');
   }
-
+  Future<void> addCategory(String category) async {
+    if (!_categories.contains(category)) {
+      _categories.add(category);
+      await saveCategories(_categories);
+    }
+  }
   // Categories
   Future<void> saveCategories(List<String> categories) async {
     _categories = categories;
