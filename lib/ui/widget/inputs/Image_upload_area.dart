@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:orderplus/domain/utils/flexible_image.dart';
 
 class ImageUploadArea extends StatelessWidget {
   final Color fillColor;
@@ -19,7 +19,7 @@ class ImageUploadArea extends StatelessWidget {
 
     showModalBottomSheet(
       context: context,
-      builder: (BuildContext ctx) {
+      builder: (BuildContext context) {
         return SafeArea(
           child: Wrap(
             children: [
@@ -27,7 +27,7 @@ class ImageUploadArea extends StatelessWidget {
                 leading: const Icon(Icons.camera_alt),
                 title: const Text('Take Photo'),
                 onTap: () async {
-                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pop();
                   final XFile? image = await picker.pickImage(
                     source: ImageSource.camera,
                   );
@@ -40,7 +40,7 @@ class ImageUploadArea extends StatelessWidget {
                 leading: const Icon(Icons.photo_library),
                 title: const Text('Pick from Gallery'),
                 onTap: () async {
-                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pop();
                   final XFile? image = await picker.pickImage(
                     source: ImageSource.gallery,
                   );
@@ -54,22 +54,6 @@ class ImageUploadArea extends StatelessWidget {
         );
       },
     );
-  }
-
-  Widget _buildImage(String path) {
-    if (path.startsWith('assets/')) {
-      return Image.asset(
-        path,
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
-      );
-    } else {
-      return Image.file(
-        File(path),
-        fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => const Icon(Icons.broken_image),
-      );
-    }
   }
 
   @override
@@ -108,7 +92,7 @@ class ImageUploadArea extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: _buildImage(imagePath!),
+                    child: flexibleImage(imagePath!),
                   ),
                   Positioned(
                     bottom: 8,

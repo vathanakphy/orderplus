@@ -86,13 +86,21 @@ class OrderPaymentCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 CustomBadge(
-                  text: order.isPaid ? "Paid" : "Unpaid",
-                  bgColor: order.isPaid
-                      ? const Color(0xFFE8F5E9)
-                      : const Color(0xFFFFF3E0),
-                  textColor: order.isPaid
-                      ? const Color(0xFF2E7D32)
-                      : const Color(0xFFEF6C00),
+                  text: order.isCancelled
+                      ? "Cancelled"
+                      : order.isPaid
+                      ? "Paid"
+                      : "Unpaid",
+                  bgColor: order.isCancelled
+                      ? const Color(0xFFFFEBEE) 
+                      : order.isPaid
+                      ? const Color(0xFFE8F5E9) 
+                      : const Color(0xFFFFF3E0), 
+                  textColor: order.isCancelled
+                      ? const Color(0xFFD32F2F) 
+                      : order.isPaid
+                      ? const Color(0xFF2E7D32) 
+                      : Theme.of(context).primaryColor,
                 ),
               ],
             ),

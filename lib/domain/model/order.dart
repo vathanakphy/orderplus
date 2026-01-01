@@ -6,17 +6,23 @@ class Order {
   final int id;
   final DateTime createdAt;
   final int tableNumber;
-
+  List<OrderItem> _items;
   OrderStatus _status;
   PaymentStatus _paymentStatus;
-
-  final List<OrderItem> _items = [];
 
   Order({required this.tableNumber, required this.id})
     : createdAt = DateTime.now(),
       _status = OrderStatus.served,
-      _paymentStatus = PaymentStatus.unpaid;
-
+      _paymentStatus = PaymentStatus.unpaid,
+      _items = [];
+  Order.load(
+    this.tableNumber,
+    this.id,
+    this.createdAt,
+    this._paymentStatus,
+    this._status,
+    this._items,
+  );
   List<OrderItem> get items => _items;
   OrderStatus get status => _status;
   PaymentStatus get paymentStatus => _paymentStatus;
@@ -48,7 +54,7 @@ class Order {
   void cancel() => _status = OrderStatus.cancelled;
 
   bool get isPaid => _paymentStatus == PaymentStatus.paid;
-
+  bool get isCancelled => _status == OrderStatus.cancelled;
   Map<String, dynamic> toMap() => {
     'id': id,
     'tableNumber': tableNumber,
@@ -58,15 +64,21 @@ class Order {
   };
 
   factory Order.fromMap(Map<String, dynamic> map) {
-    final order = Order(id: map['id'], tableNumber: map['tableNumber']);
-
-    order._status = OrderStatus.values.firstWhere(
-      (e) => e.name == map['status'],
+    return Order.load(
+      map['tableNumber'] as int,
+      map['id'] as int,
+      map['createdAt'] != null
+          ? DateTime.parse(map['createdAt'])
+          : DateTime.now(),
+      PaymentStatus.values.firstWhere(
+        (e) => e.name == map['paymentStatus'],
+        orElse: () => PaymentStatus.unpaid,
+      ),
+      OrderStatus.values.firstWhere(
+        (e) => e.name == map['status'],
+        orElse: () => OrderStatus.served,
+      ),
+      [], 
     );
-    order._paymentStatus = PaymentStatus.values.firstWhere(
-      (e) => e.name == map['paymentStatus'],
-    );
-
-    return order;
   }
 }

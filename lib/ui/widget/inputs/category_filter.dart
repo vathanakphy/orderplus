@@ -15,20 +15,18 @@ class CategoryFilter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 50,
-      child: ListView.separated(
+      height: 40,
+      child: ListView.builder(
         scrollDirection: Axis.horizontal,
         itemCount: categories.length,
         padding: const EdgeInsets.symmetric(horizontal: 4),
-        separatorBuilder: (context, index) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
           final category = categories[index];
           final isSelected = category == selectedCategory;
-          return Material(
-            color: Colors.transparent,
-            child: InkWell(
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: GestureDetector(
               onTap: () => onCategorySelected(category),
-              borderRadius: BorderRadius.circular(12),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 padding: const EdgeInsets.symmetric(

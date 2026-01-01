@@ -4,7 +4,7 @@ import 'package:orderplus/domain/utils/flexible_image.dart';
 class ProductCard extends StatelessWidget {
   final int id;
   final String title;
-  final String imagePath; // asset OR file path
+  final String imagePath;
   final VoidCallback? onAddTap;
 
   const ProductCard({
@@ -17,68 +17,67 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const Color titleColor = Color(0xFF1D1B20);
-    const Color buttonColor = Color(0xFFE86A12);
+    final Color titleColor = Theme.of(context).textTheme.bodyLarge!.color!;
+    final Color buttonColor = Theme.of(context).primaryColor;
 
     return Container(
-      height: 200,
-      width: 200,
       decoration: BoxDecoration(
-        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
+        color: Theme.of(context).cardColor,
       ),
+      clipBehavior: Clip.antiAlias,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
-                ),
-                child: SizedBox(
-                  height: 140,
-                  width: double.infinity,
-                  child: flexibleImage(imagePath),
-                ),
-              ),
-              Positioned(
-                bottom: 8,
-                right: 8,
-                child: InkWell(
-                  onTap: onAddTap,
-                  borderRadius: BorderRadius.circular(24),
-                  child: Container(
-                    height: 46,
-                    width: 46,
-                    decoration: const BoxDecoration(
-                      color: buttonColor,
-                      shape: BoxShape.circle,
+          AspectRatio(
+            aspectRatio: 1.2,
+            child: Stack(
+              children: [
+                Positioned.fill(child: flexibleImage(imagePath)),
+                Positioned(
+                  bottom: 8,
+                  right: 8,
+                  child: InkWell(
+                    onTap: onAddTap,
+                    borderRadius: BorderRadius.circular(24),
+                    child: Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        color: buttonColor,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                        size: 26,
+                      ),
                     ),
-                    child: const Icon(Icons.add, color: Colors.white, size: 32),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
+
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 2),
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
             child: Text(
               title,
-              style: const TextStyle(
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
                 color: titleColor,
               ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
             ),
           ),
+
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
             child: Text(
               "ID: $id",
-              style: const TextStyle(fontSize: 14, color: titleColor),
+              style: TextStyle(fontSize: 14, color: titleColor),
             ),
           ),
         ],

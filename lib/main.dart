@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/data/app_database.dart';
 import 'package:orderplus/data/design_config.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
@@ -7,25 +8,26 @@ import 'package:orderplus/ui/screen/menu_screen.dart';
 import 'package:orderplus/ui/screen/payment_screen.dart';
 import 'package:orderplus/data/order_repository.dart';
 import 'package:orderplus/data/product_repository.dart';
-import 'package:orderplus/data/sample_data.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 late final OrderService orderService;
 late final ProductService productService;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  //storage
+  final appDatabase =  AppDatabase(dbPath: 'orderplus.db');
+  final prefs = await SharedPreferences.getInstance();
+  //repositories
+  final productRepo = ProductRepository(database: await appDatabase.open());
+  await productRepo.init();
 
-  final orderRepo = OrderRepository();
-  final productRepo = ProductRepository();
-
-  await orderRepo.clearData();
-  await productRepo.clearData();
-
-  await seedProducts(productRepo);
-  final products = productRepo.getAll();
-  await seedOrders(orderRepo, products);
+  final orderRepo = OrderRepository(database: await appDatabase.open(),productsRepository: productRepo, prefs: prefs);
+  await orderRepo.init();
+  //services
   productService = ProductService(productRepo);
   orderService = OrderService(repository: orderRepo);
+  
   runApp(const MyApp());
 }
 
@@ -74,7 +76,7 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
       PaymentScreen(orderService: widget.orderService),
     ];
     return Scaffold(
-      backgroundColor: Colors.grey[50],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: SafeArea(
         child: IndexedStack(index: _currentIndex, children: screens),
       ),

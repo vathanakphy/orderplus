@@ -9,27 +9,26 @@ import 'package:orderplus/ui/widget/inputs/icon_button.dart';
 import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
 import 'package:path_provider/path_provider.dart';
 
-class AddItemScreen extends StatefulWidget {
+class AddItemModal extends StatefulWidget {
   final ProductService productService;
   final Product? initialProduct;
-  const AddItemScreen({
+  const AddItemModal({
     super.key,
     required this.productService,
     this.initialProduct,
   });
 
   @override
-  State<AddItemScreen> createState() => _AddItemScreenState();
+  State<AddItemModal> createState() => _AddItemModalState();
 }
 
-class _AddItemScreenState extends State<AddItemScreen> {
+class _AddItemModalState extends State<AddItemModal> {
   final _formKey = GlobalKey<FormState>();
 
   bool isAvailable = true;
   late String selectedCategory;
   late List<String> categories = [];
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController descriptionController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   late String? selectedImagePath;
   late int iniPorductId;
@@ -46,22 +45,23 @@ class _AddItemScreenState extends State<AddItemScreen> {
     if (widget.initialProduct != null) {
       final p = widget.initialProduct!;
       nameController.text = p.name;
-      descriptionController.text = p.description;
       priceController.text = p.price.toString();
       selectedCategory = p.category;
       isAvailable = p.isAvailable;
       selectedImagePath = p.imageUrl;
       iniPorductId = p.id;
     } else {
-      selectedCategory = categories.first;
+      selectedCategory = categories.isNotEmpty ? categories.first : "Uncategorized";
       selectedImagePath = null;
+      iniPorductId = widget.productService.getAllProducts().isEmpty
+          ? 1
+          : widget.productService.getAllProducts().last.id + 1;
     }
   }
 
   @override
   void dispose() {
     nameController.dispose();
-    descriptionController.dispose();
     priceController.dispose();
     super.dispose();
   }
@@ -85,7 +85,6 @@ class _AddItemScreenState extends State<AddItemScreen> {
     final newProduct = Product(
       id: iniPorductId,
       name: name,
-      description: descriptionController.text.trim(),
       price: price,
       category: selectedCategory,
       isAvailable: isAvailable,
@@ -206,6 +205,7 @@ class _AddItemScreenState extends State<AddItemScreen> {
               textColor: theme.colorScheme.onPrimary,
               onPressed: _saveItem,
             ),
+            const SizedBox(height: 40),
           ],
         ),
       ),

@@ -4,7 +4,7 @@ import 'package:orderplus/domain/service/product_service.dart';
 import 'package:orderplus/domain/utils/flexible_image.dart';
 import 'package:orderplus/ui/widget/inputs/delete_alert.dart';
 import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
-import '../widget/cards/product_tile.dart';
+import '../widget/layout/product_tile.dart';
 import '../widget/layout/add_item_modal.dart';
 
 class MenuScreen extends StatefulWidget {
@@ -20,11 +20,6 @@ class _MenuScreenState extends State<MenuScreen> {
   String _searchQuery = "";
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   void dispose() {
     super.dispose();
   }
@@ -34,12 +29,11 @@ class _MenuScreenState extends State<MenuScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      builder: (context) =>
-          AddItemScreen(productService: widget.productService),
+      builder: (context) => AddItemModal(productService: widget.productService),
     );
 
     if (product != null) {
-      widget.productService.addProduct(product);
+      await widget.productService.addProduct(product);
       setState(() {});
     }
   }
@@ -49,14 +43,14 @@ class _MenuScreenState extends State<MenuScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.white,
-      builder: (context) => AddItemScreen(
+      builder: (context) => AddItemModal(
         productService: widget.productService,
         initialProduct: product,
       ),
     );
 
     if (updated != null) {
-      widget.productService.updateProduct(updated);
+      await widget.productService.updateProduct(updated);
       setState(() {});
     }
   }

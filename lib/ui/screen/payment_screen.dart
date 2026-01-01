@@ -3,9 +3,10 @@ import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/inputs/delete_alert.dart';
 import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
 import '../widget/cards/order_payment_card.dart';
-import '../widget/layout/payment_detail.dart';
+import '../widget/cards/order_detail.dart';
 import '../widget/inputs/selection_bar.dart';
 
 class PaymentScreen extends StatefulWidget {
@@ -31,8 +32,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
 
-    setState(() {
-    });
+    setState(() {});
   }
 
   void _showOrderDetails(Order order) {
@@ -40,7 +40,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => PaymentDetailSheet(
+      builder: (_) => OrderDetails(
         order: order,
         onConfirmPayment: () {
           Navigator.pop(context);
@@ -55,6 +55,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     final orders = widget.orderService.filterOrders(
       paymentStatus: _selectedPaymentStatus,
       idQuery: _searchQuery,
+      isASC: false,
     );
     return Column(
       children: [
@@ -101,15 +102,45 @@ class _PaymentScreenState extends State<PaymentScreen> {
           ),
         ),
         Expanded(
-          child: ListView.separated(
+          child: ListView.builder(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             itemCount: orders.length,
-            separatorBuilder: (_, __) => const SizedBox(height: 15),
-            itemBuilder: (_, index) {
+            itemBuilder: (context, index) {
               final order = orders[index];
-              return OrderPaymentCard(
-                order: order,
-                onTap: () => _showOrderDetails(order),
+              return Dismissible(
+                direction: DismissDirection.endToStart,
+                confirmDismiss: (direction) async {
+                  if (!order.isPaid && !order.isCancelled) {
+                    final result = await showDeleteDialog(
+                      context: context,
+                      confirmText: "Confirm",
+                      title: "Cancel Order",
+                      cancelText: "Cancel",
+                      content:
+                          "Are you sure you want to Cancel Order #${order.id}?",
+                    );
+                    return result;
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Cannot be canceled.")),
+                    );
+                    return false;
+                  }
+                },
+                onDismissed: (direction) async {
+                  setState(() {
+                    orders.removeAt(index);
+                  });
+                  await widget.orderService.cancelOrder(order);
+                },
+                key: Key(order.id.toString()),
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 15),
+                  child: OrderPaymentCard(
+                    order: order,
+                    onTap: () => _showOrderDetails(order),
+                  ),
+                ),
               );
             },
           ),

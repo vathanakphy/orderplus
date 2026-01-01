@@ -34,7 +34,7 @@ class _OrderScreenState extends State<OrderScreen> {
   }
 
   Future<void> _openCheckout() async {
-    final cartItems = widget.orderService.getCartItems(widget.tableId);
+    final cartItems = widget.orderService.getCartItems();
     if (cartItems.isEmpty) return;
 
     final orderItems = await showModalBottomSheet<List<OrderItem>>(
@@ -51,12 +51,12 @@ class _OrderScreenState extends State<OrderScreen> {
     );
     if (!success) return;
 
-    widget.orderService.clearCart(widget.tableId);
+    widget.orderService.clearCart();
     setState(() {});
 
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
+      SnackBar(
         content: Text("Order placed successfully!"),
         backgroundColor: Colors.green,
       ),
@@ -66,12 +66,13 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredProducts = widget.productService.filterProducts(
+    List<Product> filteredProducts = widget.productService.filterProducts(
       category: _selectedCategory,
       searchQuery: _searchQuery,
     );
-    final cartItems = widget.orderService.getCartItems(widget.tableId);
+    final cartItems = widget.orderService.getCartItems();
     return Scaffold(
+      backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -92,24 +93,11 @@ class _OrderScreenState extends State<OrderScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
-                    vertical: 20,
+                    vertical: 10,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // SearchAppBar(
-                      //   backButton: IconButton(
-                      //     icon: const Icon(Icons.arrow_back),
-                      //     onPressed: widget.onBack,
-                      //   ),
-                      //   title: widget.tableId == -1
-                      //       ? "Pickup Order"
-                      //       : "Table ${widget.tableId} Order",
-                      //   onSearchChanged: (query) {
-                      //     setState(() => _searchQuery = query);
-                      //   },
-                      // ),
-                      const SizedBox(height: 16),
                       CategoryFilter(
                         categories: widget.productService.getAllCategories(),
                         selectedCategory: _selectedCategory,
@@ -123,11 +111,11 @@ class _OrderScreenState extends State<OrderScreen> {
                           padding: const EdgeInsets.only(bottom: 90),
                           itemCount: filteredProducts.length,
                           gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
+                              const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 220,
                                 mainAxisSpacing: 12,
                                 crossAxisSpacing: 12,
-                                childAspectRatio: 0.85,
+                                childAspectRatio: 0.80,
                               ),
                           itemBuilder: (context, index) {
                             final product = filteredProducts[index];
@@ -169,7 +157,7 @@ class _OrderScreenState extends State<OrderScreen> {
                 ),
                 if (cartItems.isNotEmpty)
                   Positioned(
-                    bottom: 16,
+                    bottom: 70,
                     right: 16,
                     child: FloatingActionButton.extended(
                       onPressed: _openCheckout,

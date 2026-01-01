@@ -1,8 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/order_item.dart';
+import 'package:orderplus/ui/widget/layout/order_item_tile.dart';
 import 'package:orderplus/ui/widget/inputs/icon_button.dart';
-import 'package:orderplus/ui/widget/inputs/quantity_button.dart';
 
 class OrderForm extends StatefulWidget {
   final List<OrderItem> cartItems;
@@ -24,36 +23,6 @@ class _OrderFormState extends State<OrderForm> {
     }
   }
 
-  bool _isAssetImage(String path) {
-    return path.startsWith('assets/');
-  }
-
-  Widget _buildProductImage(String imagePath) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        width: 50,
-        height: 50,
-        color: Colors.grey[200],
-        child: _isAssetImage(imagePath)
-            ? Image.asset(
-                imagePath,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _fallbackImage(),
-              )
-            : Image.file(
-                File(imagePath),
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _fallbackImage(),
-              ),
-      ),
-    );
-  }
-
-  Widget _fallbackImage() {
-    return const Icon(Icons.fastfood, color: Colors.grey, size: 20);
-  }
-
   @override
   Widget build(BuildContext context) {
     final cartItems = widget.cartItems;
@@ -63,7 +32,7 @@ class _OrderFormState extends State<OrderForm> {
         left: 20,
         right: 20,
         top: 20,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 20,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 50,
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -95,67 +64,34 @@ class _OrderFormState extends State<OrderForm> {
                       final item = cartItems[index];
                       return Column(
                         children: [
-                          ListTile(
-                            contentPadding: const EdgeInsets.symmetric(
-                              vertical: 8,
-                            ),
-                            leading: _buildProductImage(item.product.imageUrl),
-                            title: Text(
-                              item.product.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                QuantityButton(
-                                  icon: Icons.remove,
-                                  onTap: () {
-                                    setState(() {
-                                      if (item.quantity > 1) {
-                                        item.quantity -= 1;
-                                      } else {
-                                        cartItems.removeAt(index);
-                                      }
-                                      _checkEmptyAndClose();
-                                    });
-                                  },
-                                ),
-                                Container(
-                                  constraints: const BoxConstraints(
-                                    minWidth: 30,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    "${item.quantity}",
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                QuantityButton(
-                                  icon: Icons.add,
-                                  color: Theme.of(context).colorScheme.primary,
-                                  iconColor: Colors.white,
-                                  onTap: () =>
-                                      setState(() => item.quantity += 1),
-                                ),
-                              ],
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: OrderItemTile(
+                              name: item.product.name,
+                              quantity: item.quantity,
+                              imagePath: item.product.imageUrl,
+                              onAdd: () {
+                                setState(() {
+                                  item.quantity += 1;
+                                });
+                              },
+                              onRemove: () {
+                                setState(() {
+                                  item.quantity -= 1;
+                                  if (item.quantity <= 0) {
+                                    cartItems.removeAt(index);
+                                    _checkEmptyAndClose();
+                                  }
+                                });
+                              },
                             ),
                           ),
-                          if (index != cartItems.length - 1)
-                            const Divider(height: 1),
                         ],
                       );
                     },
                   ),
           ),
-
           const SizedBox(height: 24),
-
-          // Confirm button
           CustomIconButton(
             text: "Confirm Order",
             icon: Icons.check_circle_outline,

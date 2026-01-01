@@ -67,7 +67,7 @@ class CategorySelector extends StatelessWidget {
         ),
         IconButton(
           onPressed: () => _showAddCategoryDialog(context),
-          icon: const Icon(Icons.add, color: Color(0xFFEE7F18)),
+          icon: Icon(Icons.add, color: Theme.of(context).primaryColor),
         ),
       ],
     );

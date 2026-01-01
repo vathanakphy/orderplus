@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/order.dart';
+import 'package:orderplus/ui/widget/layout/order_item_tile.dart';
 import 'package:orderplus/ui/widget/inputs/icon_button.dart';
-import 'package:orderplus/ui/widget/cards/order_item_row.dart';
 
-class PaymentDetailSheet extends StatelessWidget {
+class OrderDetails extends StatelessWidget {
   final Order order;
   final VoidCallback onConfirmPayment;
 
-  const PaymentDetailSheet({
+  const OrderDetails({
     super.key,
     required this.order,
     required this.onConfirmPayment,
@@ -62,7 +62,7 @@ class PaymentDetailSheet extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey[200]!),
                 ),
-                child: const Icon(Icons.qr_code_2, size: 32),
+                child: const Icon(Icons.print, size: 32),
               ),
             ],
           ),
@@ -73,16 +73,18 @@ class PaymentDetailSheet extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Expanded(
-            child: ListView.separated(
+            child: ListView.builder(
               itemCount: items.length,
-              separatorBuilder: (_, __) => const Divider(height: 24),
               itemBuilder: (context, index) {
                 final item = items[index];
-                return OrderItemRow(
-                  name: item.product.name,
-                  qty: item.quantity,
-                  price: item.priceAtOrder,
-                  imagePath: item.product.imageUrl,
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: OrderItemTile(
+                    name: item.product.name,
+                    quantity: item.quantity,
+                    price: item.product.price,
+                    imagePath: item.product.imageUrl,
+                  ),
                 );
               },
             ),
@@ -106,13 +108,40 @@ class PaymentDetailSheet extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          if (!order.isPaid)
+          if(order.isCancelled)
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.red[100],
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.cancel, color: Colors.red),
+                    SizedBox(width: 8),
+                    Text(
+                      "Order Cancelled",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          else if (!order.isPaid)
             CustomIconButton(
               text: "Confirm Payment",
               color: const Color(0xFFEF6C00),
               onPressed: () {
                 order.markPaid();
-                onConfirmPayment(); 
+                onConfirmPayment();
               },
             )
           else
@@ -142,6 +171,7 @@ class PaymentDetailSheet extends StatelessWidget {
                 ),
               ),
             ),
+          const SizedBox(height: 60),
         ],
       ),
     );

@@ -38,7 +38,6 @@ class _SelectionBarState extends State<SelectionBar> {
       height: barHeight,
       child: LayoutBuilder(
         builder: (context, constraints) {
-          // compute individual widths
           final itemWidths = widget.items.map((t) {
             final tp = TextPainter(
               text: TextSpan(
@@ -50,14 +49,12 @@ class _SelectionBarState extends State<SelectionBar> {
             return tp.width + 32;
           }).toList();
 
-          // If all items fit → spread equally
           final totalWidth = itemWidths.fold(0.0, (a, b) => a + b);
           final useScroll = totalWidth > constraints.maxWidth;
 
           final fixedWidth =
               useScroll ? null : constraints.maxWidth / widget.items.length;
 
-          // calculate selected item offset (for background)
           double offsetX = 0;
           for (int i = 0; i < _selectedIndex; i++) {
             offsetX += fixedWidth ?? itemWidths[i];
@@ -72,7 +69,6 @@ class _SelectionBarState extends State<SelectionBar> {
             ),
             child: Stack(
               children: [
-                // --- Moving background ---
                 AnimatedPositioned(
                   duration: const Duration(milliseconds: 300),
                   curve: Curves.easeInOutCubic,
@@ -103,7 +99,6 @@ class _SelectionBarState extends State<SelectionBar> {
                   child: Row(
                     children: List.generate(widget.items.length, (index) {
                       final isSelected = index == _selectedIndex;
-
                       return SizedBox(
                         width: fixedWidth ?? itemWidths[index],
                         child: InkWell(

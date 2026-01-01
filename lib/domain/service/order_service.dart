@@ -6,14 +6,13 @@ import 'package:orderplus/domain/model/product.dart';
 
 class OrderService {
   final OrderRepository _repository;
-  final Map<int, List<OrderItem>> _tableCarts = {};
+  final List<OrderItem> cart = [];
 
   OrderService({required OrderRepository repository})
     : _repository = repository;
 
   // Cart
   void addToCart(int tableId, Product product) {
-    final cart = _tableCarts.putIfAbsent(tableId, () => []);
     final existingItem = cart.firstWhere(
       (i) => i.product.id == product.id,
       orElse: () =>
@@ -28,7 +27,6 @@ class OrderService {
   }
 
   int getQuantity(int tableId, Product product) {
-    final cart = _tableCarts[tableId] ?? [];
     final item = cart.firstWhere(
       (i) => i.product.id == product.id,
       orElse: () =>
@@ -37,10 +35,10 @@ class OrderService {
     return item.quantity;
   }
 
-  List<OrderItem> getCartItems(int tableId) =>
-      List.from(_tableCarts[tableId] ?? []);
+  List<OrderItem> getCartItems() =>
+      List.from(cart);
 
-  void clearCart(int tableId) => _tableCarts[tableId]?.clear();
+  void clearCart() => cart.clear();
 
   // Orders
 
@@ -72,15 +70,24 @@ class OrderService {
         newOrder.addItem(item.product, item.quantity, note: item.note);
       }
       await _repository.addUsedTable(tableId);
-      _repository.addOrder(newOrder);
+      await _repository.addOrder(newOrder);
     }
 
     return true;
   }
-
-  void payOrder(Order order) {
+  Future<void> cancelOrder(Order order) async {
+    order.cancel();
+    await _repository.updateOrder(order);
+    if(order.tableNumber != -1){
+      _repository.removeUsedTable(order.tableNumber);
+    }
+  }
+  Future<void> payOrder(Order order) async {
     order.markPaid();
-    _repository.removeUsedTable(order.tableNumber);
+    if(order.tableNumber != -1){
+      _repository.removeUsedTable(order.tableNumber);
+    }
+    await _repository.updateOrder(order);
   }
 
   List<Order> getAllOrders() => _repository.orders;
@@ -120,12 +127,12 @@ class OrderService {
   Future<void> addTable(int newId) async => _repository.addTable(newId);
   Future<void> removeTable(int id) async => _repository.removeTable(id);
 
-  List<Order> filterOrders({PaymentStatus? paymentStatus, String? idQuery}) {
+  List<Order> filterOrders({PaymentStatus? paymentStatus, String? idQuery ,bool isASC = true}) {
     List<Order> filtered = _repository.orders;
 
     if (paymentStatus != null) {
       filtered = filtered
-          .where((o) => o.paymentStatus == paymentStatus)
+          .where((o) => o.paymentStatus == paymentStatus && !o.isCancelled)
           .toList();
     }
 
@@ -134,6 +141,9 @@ class OrderService {
           .where((o) => o.id.toString().contains(idQuery))
           .toList();
     }
+    if(!isASC){
+      filtered = filtered.reversed.toList();
+    } 
     return filtered;
   }
 }
