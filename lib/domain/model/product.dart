@@ -1,9 +1,11 @@
+import 'package:orderplus/domain/model/category.dart';
+
 class Product {
   final int id;
   final String name;
   final double price;
   final String imageUrl;
-  final String category;
+  final Category category;
   bool _isAvailable;
 
   Product({
@@ -25,16 +27,17 @@ class Product {
     'name': name,
     'price': price,
     'imageUrl': imageUrl,
-    'category': category,
+    'categoryId': category.id,
     'isAvailable': _isAvailable ? 1 : 0,
   };
 
-  factory Product.fromMap(Map<String, dynamic> map) => Product(
-    id: map['id'],
-    name: map['name'],
-    price: map['price'],
-    imageUrl: map['imageUrl'],
-    category: map['category'],
-    isAvailable: map['isAvailable'] == 1,
-  );
+  factory Product.fromMap(Map<String, dynamic> map, Category category) =>
+      Product(
+        id: map['id'],
+        name: map['name'],
+        price: map['price'],
+        imageUrl: map['imageUrl'],
+        category: category,
+        isAvailable: map['isAvailable'] == 1,
+      );
 }

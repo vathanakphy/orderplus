@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 import 'package:orderplus/ui/widget/inputs/delete_alert.dart';
+import 'package:orderplus/ui/widget/inputs/labeled_text_field.dart';
 import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
 import '../widget/layout/product_tile.dart';
 import '../widget/layout/add_item_modal.dart';
@@ -72,40 +73,17 @@ class _MenuScreenState extends State<MenuScreen> {
     }
   }
 
-  Widget _buildCategorySection(String title, List<Product> products) {
-    if (products.isEmpty) return const SizedBox.shrink();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 12),
-        for (final product in products)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: ProductTile(
-              title: product.name,
-              price: product.price,
-              imagePath: product.imageUrl,
-              onEdit: () => _editProduct(product),
-              onDelete: () => _deleteProduct(product),
-            ),
-          ),
-        const SizedBox(height: 25),
-      ],
-    );
+  Future<void> updateCategory(String oldName, String newName) async {
+    await widget.productService.updateCategory(oldName, newName);
   }
 
   @override
   Widget build(BuildContext context) {
-    final categories = widget.productService.getAllCategories();
+    final categories = widget.productService.categories;
     final products = _searchQuery.isEmpty
         ? widget.productService.getAllProducts()
         : widget.productService.filterProducts(searchQuery: _searchQuery);
-
+    final categoryController = TextEditingController();
     return Stack(
       children: [
         Column(
@@ -116,9 +94,9 @@ class _MenuScreenState extends State<MenuScreen> {
                 titleWidget: SizedBox(
                   width: 150,
                   height: 40,
-                  child: flexibleImage(
-                    "assets/app_logo.png",
-                    fit: BoxFit.contain,
+                  child: FlexibleImage(
+                    imagePath: "assets/app_logo.png",
+                    fit: BoxFit.fitWidth,
                   ),
                 ),
                 onSearchChanged: (query) {
@@ -138,9 +116,83 @@ class _MenuScreenState extends State<MenuScreen> {
                   }
                   final category = categories[index];
                   final categoryProducts = products
-                      .where((p) => p.category == category)
+                      .where((p) => p.category.id == category.id)
                       .toList();
-                  return _buildCategorySection(category, categoryProducts);
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            category.name,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              categoryController.text = category.name;
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Edit Category'),
+                                    content: SizedBox(
+                                      height: 60,
+                                      child: LabeledTextField(
+                                        controller: categoryController,
+                                        hintText: 'Category Name',
+                                        labelColor: Colors.black,
+                                        fillColor: Colors.grey.shade200,
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          await updateCategory(
+                                            category.name,
+                                            categoryController.text,
+                                          );
+                                          Navigator.pop(context);
+                                          setState(() {});
+                                        },
+                                        child: const Text('Save'),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                            child: const Icon(
+                              Icons.edit,
+                              size: 20,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 12),
+                      for (final product in categoryProducts)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: ProductTile(
+                            title: product.name,
+                            price: product.price,
+                            imagePath: product.imageUrl,
+                            onEdit: () => _editProduct(product),
+                            onDelete: () => _deleteProduct(product),
+                          ),
+                        ),
+                      const SizedBox(height: 25),
+                    ],
+                  );
                 },
               ),
             ),

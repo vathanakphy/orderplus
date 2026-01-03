@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/model/category.dart';
 import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/order_service.dart';
@@ -25,7 +26,7 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  String _selectedCategory = "All";
+  Category _selectedCategory = Category(id: 0, name: "All");
   String _searchQuery = "";
 
   void _addToCart(Product product) {

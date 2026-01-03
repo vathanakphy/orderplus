@@ -23,7 +23,6 @@ class LabeledTextField extends StatelessWidget {
     this.onChanged,
     this.validator,
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -32,36 +31,31 @@ class LabeledTextField extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-              color: labelColor,
-            ),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
         ],
-        Container(
-          decoration: BoxDecoration(
-            color: fillColor,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey),
-          ),
-          child: TextFormField(
-            controller: controller,
-            keyboardType: keyboardType,
-            style: TextStyle(color: labelColor, fontSize: 16),
-            decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: TextStyle(color: Colors.grey[400]),
-              prefixIcon: prefixIcon != null
-                  ? Icon(prefixIcon, color: labelColor)
-                  : null,
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(16),
+        TextFormField(
+          controller: controller,
+          keyboardType: keyboardType,
+          style: TextStyle(fontSize: 16, color: labelColor),
+          enableSuggestions: false,
+          autocorrect: false,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: fillColor,
+            hintText: hintText,
+            prefixIcon: prefixIcon != null
+                ? Icon(prefixIcon, color: labelColor)
+                : null,
+            contentPadding: const EdgeInsets.all(16),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.grey),
             ),
-            onChanged: onChanged,
-            validator: validator,
           ),
+          onChanged: onChanged,
+          validator: validator,
         ),
       ],
     );

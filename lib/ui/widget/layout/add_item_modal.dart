@@ -39,7 +39,7 @@ class _AddItemModalState extends State<AddItemModal> {
     super.initState();
 
     categories = widget.productService
-        .getAllCategories()
+        .getAllCategoriesString()
         .where((cat) => cat != "All" && cat != "Top")
         .toList();
 
@@ -47,7 +47,7 @@ class _AddItemModalState extends State<AddItemModal> {
       final p = widget.initialProduct!;
       nameController.text = p.name;
       priceController.text = p.price.toString();
-      selectedCategory = p.category;
+      selectedCategory = p.category.name;
       isAvailable = p.isAvailable;
       selectedImagePath = p.imageUrl;
       iniPorductId = p.id;
@@ -89,7 +89,7 @@ class _AddItemModalState extends State<AddItemModal> {
       id: iniPorductId,
       name: name,
       price: price,
-      category: selectedCategory,
+      category: widget.productService.getCategoryByName(selectedCategory)!,
       isAvailable: isAvailable,
       imageUrl: permanentImagePath ?? 'assets/burgur.png',
     );
@@ -108,109 +108,121 @@ class _AddItemModalState extends State<AddItemModal> {
       (0.1 * 255).round(),
     );
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            IconButton(
-              icon: Icon(
-                Icons.cancel_outlined,
-                size: 32,
-                color: theme.colorScheme.error,
-              ),
-              onPressed: () => Navigator.pop(context),
-            ),
-            const SizedBox(height: 10),
-            ImageUploadArea(
-              fillColor: Colors.grey[200]!,
-              imagePath: selectedImagePath,
-              onImageSelected: (path) {
-                setState(() {
-                  selectedImagePath = path;
-                });
-              },
-            ),
-
-            const SizedBox(height: 25),
-            LabeledTextField(
-              label: "Item Name",
-              controller: nameController,
-              hintText: "e.g. Classic Burger",
-              labelColor: labelColor,
-              fillColor: inputFillColor,
-              validator: (value) => value == null || value.isEmpty
-                  ? "Please enter item name"
-                  : null,
-            ),
-            const SizedBox(height: 20),
-            LabeledTextField(
-              label: "Price",
-              controller: priceController,
-              hintText: "0.00",
-              prefixIcon: Icons.attach_money,
-              keyboardType: TextInputType.number,
-              labelColor: labelColor,
-              fillColor: inputFillColor,
-              validator: (value) {
-                if (value == null || value.isEmpty) return "Please enter price";
-                final price = double.tryParse(value);
-                if (price == null) return "Enter a valid number";
-                return null;
-              },
-            ),
-            const SizedBox(height: 20),
-            Text(
-              "Category",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: labelColor,
-              ),
-            ),
-            CategorySelector(
-              categories: categories,
-              selectedCategory: selectedCategory,
-              onCategorySelected: (value) =>
-                  setState(() => selectedCategory = value),
-              onAddCategory: (newCat) async {
-                await productService.addCategory(newCat);
-                setState(() {
-                  categories.add(newCat);
-                  selectedCategory = newCat;
-                });
-              },
-            ),
-            const SizedBox(height: 25),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "Available",
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: labelColor,
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.90,
+          child: ListView(
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.cancel_outlined,
+                    size: 32,
+                    color: theme.colorScheme.error,
                   ),
+                  onPressed: () => Navigator.pop(context),
                 ),
-                Switch(
-                  value: isAvailable,
-                  onChanged: (val) => setState(() => isAvailable = val),
-                  activeThumbColor: primaryColor,
+              ),
+
+              const SizedBox(height: 10),
+              StatefulBuilder(
+                builder: (context, setState) => ImageUploadArea(
+                  imagePath: selectedImagePath,
+                  onImageSelected: (path) {
+                    setState(() {
+                      selectedImagePath = path;
+                    });
+                  },
                 ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            CustomIconButton(
-              text: "Save Item",
-              color: primaryColor,
-              textColor: theme.colorScheme.onPrimary,
-              onPressed: _saveItem,
-            ),
-            const SizedBox(height: 40),
-          ],
+              ),
+              const SizedBox(height: 25),
+              LabeledTextField(
+                label: "Item Name",
+                controller: nameController,
+                hintText: "e.g. Classic Burger",
+                labelColor: labelColor,
+                fillColor: inputFillColor,
+                validator: (value) => value == null || value.isEmpty
+                    ? "Please enter item name"
+                    : null,
+              ),
+              const SizedBox(height: 20),
+              LabeledTextField(
+                label: "Price",
+                controller: priceController,
+                hintText: "0.00",
+                prefixIcon: Icons.attach_money,
+                keyboardType: TextInputType.number,
+                labelColor: labelColor,
+                fillColor: inputFillColor,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return "Please enter price";
+                  }
+                  final price = double.tryParse(value);
+                  if (price == null) return "Enter a valid number";
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              Text(
+                "Category",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: labelColor,
+                ),
+              ),
+              StatefulBuilder(
+                builder: (context, setState) {
+                  return CategorySelector(
+                    categories: categories,
+                    selectedCategory: selectedCategory,
+                    onCategorySelected: (value) =>
+                        setState(() => selectedCategory = value),
+                    onAddCategory: (newCat) async {
+                      await productService.addCategory(newCat);
+                      setState(() {
+                        categories.add(newCat);
+                        selectedCategory = newCat;
+                      });
+                    },
+                  );
+                },
+              ),
+              const SizedBox(height: 25),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "Available",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: labelColor,
+                    ),
+                  ),
+                  Switch(
+                    value: isAvailable,
+                    onChanged: (val) => setState(() => isAvailable = val),
+                    activeThumbColor: primaryColor,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 40),
+              CustomIconButton(
+                text: "Save Item",
+                color: primaryColor,
+                textColor: theme.colorScheme.onPrimary,
+                onPressed: _saveItem,
+              ),
+              const SizedBox(height: 40),
+            ],
+          ),
         ),
       ),
     );

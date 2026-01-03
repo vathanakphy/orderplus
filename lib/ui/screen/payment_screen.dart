@@ -3,7 +3,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/service/order_service.dart';
-import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 import 'package:orderplus/ui/widget/inputs/delete_alert.dart';
 import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
 import '../widget/cards/order_payment_card.dart';
@@ -69,8 +69,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 titleWidget: SizedBox(
                   width: 150,
                   height: 40,
-                  child: flexibleImage(
-                    "assets/app_logo.png",
+                  child: FlexibleImage(
+                    imagePath: "assets/app_logo.png",
                     fit: BoxFit.contain,
                   ),
                 ),

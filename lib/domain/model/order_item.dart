@@ -13,7 +13,7 @@ class OrderItem {
     this.note,
   });
 
-  double get subtotal => priceAtOrder * quantity;
+  get subtotal => priceAtOrder * quantity;
 
   Map<String, dynamic> toMap(int orderId) => {
     'orderId': orderId,

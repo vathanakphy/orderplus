@@ -48,8 +48,7 @@ class OrderService {
     if (items.isEmpty) return false;
 
     final activeOrder = getCurrentOrdersByTable(tableId);
-    print('Active Order: $activeOrder'); 
-    if (activeOrder != null) {
+    if (activeOrder != null && tableId != -1) {
       for (var item in items) {
         final index = activeOrder.items.indexWhere(
           (i) => i.product.id == item.product.id,

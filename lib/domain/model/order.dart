@@ -12,7 +12,7 @@ class Order {
 
   Order({required this.tableNumber, required this.id})
     : createdAt = DateTime.now(),
-      _status = OrderStatus.served,
+      _status = OrderStatus.queued,
       _paymentStatus = PaymentStatus.unpaid,
       _items = [];
   Order.load(
@@ -41,6 +41,9 @@ class Order {
       ),
     );
   }
+  void loadItemFromDB(OrderItem item) {
+    _items.add(item);
+  }
 
   void markPaid() => _paymentStatus = PaymentStatus.paid;
 
@@ -50,7 +53,7 @@ class Order {
 
   double get totalAmount => _items.fold(0, (sum, item) => sum + item.subtotal);
 
-  void markServed() => _status = OrderStatus.served;
+  void markReady() => _status = OrderStatus.ready;
   void cancel() => _status = OrderStatus.cancelled;
 
   bool get isPaid => _paymentStatus == PaymentStatus.paid;
@@ -76,9 +79,9 @@ class Order {
       ),
       OrderStatus.values.firstWhere(
         (e) => e.name == map['status'],
-        orElse: () => OrderStatus.served,
+        orElse: () => OrderStatus.ready,
       ),
-      [], 
+      [],
     );
   }
 }

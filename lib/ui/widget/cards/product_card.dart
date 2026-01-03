@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 
 class ProductCard extends StatelessWidget {
   final int id;
@@ -33,7 +33,7 @@ class ProductCard extends StatelessWidget {
             aspectRatio: 1.2,
             child: Stack(
               children: [
-                Positioned.fill(child: flexibleImage(imagePath)),
+                Positioned.fill(child: FlexibleImage(imagePath: imagePath)),
                 Positioned(
                   bottom: 8,
                   right: 8,
@@ -47,11 +47,7 @@ class ProductCard extends StatelessWidget {
                         color: buttonColor,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                        size: 26,
-                      ),
+                      child: Icon(Icons.add, color: Colors.white, size: 26),
                     ),
                   ),
                 ),

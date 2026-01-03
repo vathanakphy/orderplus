@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/model/category.dart';
 
 class CategoryFilter extends StatelessWidget {
-  final List<String> categories;
-  final String selectedCategory;
-  final ValueChanged<String> onCategorySelected;
+  final List<Category> categories;
+  final Category selectedCategory;
+  final ValueChanged<Category> onCategorySelected;
 
   const CategoryFilter({
     super.key,
@@ -22,7 +23,7 @@ class CategoryFilter extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4),
         itemBuilder: (context, index) {
           final category = categories[index];
-          final isSelected = category == selectedCategory;
+          final isSelected = category.id == selectedCategory.id;
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4),
             child: GestureDetector(
@@ -58,7 +59,7 @@ class CategoryFilter extends StatelessWidget {
                       : [],
                 ),
                 child: Text(
-                  category,
+                  category.name,
                   style: TextStyle(
                     color: isSelected ? Colors.white : Colors.black87,
                     fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,

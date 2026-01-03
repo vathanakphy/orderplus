@@ -1,35 +1,37 @@
+import 'package:orderplus/domain/model/category.dart';
 import 'package:orderplus/domain/model/product.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqlite_api.dart';
 
 class ProductRepository {
-  final List<Product> _products = [];
-  List<String> _categories = ['All'];
-  static const _categoriesKey = 'categories';
+  List<Product> _products = [];
+  List<Category> _categories = [];
   Database database;
 
   ProductRepository({required this.database});
 
   Future<void> init() async {
-    final query = await database.query('products');
-    _products.clear();
-    _products.addAll(query.map(Product.fromMap));
-    final prefs = await SharedPreferences.getInstance();
-    _categories = prefs.getStringList(_categoriesKey) ?? ['All'];
+    _categories = await database
+        .query('categories')
+        .then((maps) => maps.map((map) => Category.fromMap(map)).toList());
+    final productMaps = await database.query('products');
+    _products = productMaps.map((map) {
+      final categoryId = map['categoryId'] as int;
+      final category = _categories.firstWhere((c) => c.id == categoryId);
+      return Product.fromMap(map, category);
+    }).toList();
   }
 
   // Products
   List<Product> getAll({
-    String? category,
+    int? categoryId,
     String? searchQuery,
     bool? isAvailable,
   }) {
-    
     bool matchesAvailability(Product p) =>
         isAvailable == null || p.isAvailable == isAvailable;
 
     bool matchesCategory(Product p) =>
-        category == null || category == 'All' || p.category == category;
+        categoryId == null || p.category.id == categoryId;
 
     bool matchesSearch(Product p) {
       if (searchQuery == null || searchQuery.isEmpty) return true;
@@ -41,9 +43,7 @@ class ProductRepository {
     return _products
         .where(
           (p) =>
-              matchesAvailability(p) &&
-              matchesCategory(p) &&
-              matchesSearch(p),
+              matchesAvailability(p) && matchesCategory(p) && matchesSearch(p),
         )
         .toList();
   }
@@ -61,6 +61,22 @@ class ProductRepository {
   Future<void> add(Product product) async {
     await database.insert('products', product.toMap());
     _products.add(product);
+  }
+
+  Future<void> updateCategory(String oldName, String newName) async {
+    final categoryIndex = _categories.indexWhere((c) => c.name == oldName);
+    Category updatedCategory = Category(
+      id: _categories[categoryIndex].id,
+      name: newName,
+      isActive: _categories[categoryIndex].isActive,
+    );
+    _categories[categoryIndex] = updatedCategory;
+    await database.update(
+      'categories',
+      updatedCategory.toMap(),
+      where: 'id = ?',
+      whereArgs: [_categories[categoryIndex].id],
+    );
   }
 
   Future<void> removeById(int id) async {
@@ -82,26 +98,29 @@ class ProductRepository {
   }
 
   Future<void> clearData() async {
-    _products.clear();
-    _categories = ['All'];
-
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_categoriesKey);
-
     await database.delete('products');
+    await database.delete('categories');
   }
+
   Future<void> addCategory(String category) async {
-    if (!_categories.contains(category)) {
-      _categories.add(category);
-      await saveCategories(_categories);
+    if (!_categories.any((c) => c.name == category)) {
+      final newCategory = Category(
+        id: _categories.isEmpty ? 1 : _categories.last.id + 1,
+        name: category,
+        isActive: true,
+      );
+      _categories.add(newCategory);
+      await database.insert('categories', newCategory.toMap());
     }
   }
-  // Categories
-  Future<void> saveCategories(List<String> categories) async {
-    _categories = categories;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_categoriesKey, categories);
-  }
 
-  List<String> get categories => _categories;
+  List<Category> get categories => _categories;
+
+  Category? getCategoryByName(String name) {
+    try {
+      return _categories.firstWhere((c) => c.name == name);
+    } catch (e) {
+      return null;
+    }
+  }
 }

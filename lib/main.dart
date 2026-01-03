@@ -16,18 +16,22 @@ late final ProductService productService;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //storage
-  final appDatabase =  AppDatabase(dbPath: 'orderplus.db');
+  final appDatabase = AppDatabase(dbPath: 'orderplus.db');
   final prefs = await SharedPreferences.getInstance();
   //repositories
   final productRepo = ProductRepository(database: await appDatabase.open());
   await productRepo.init();
 
-  final orderRepo = OrderRepository(database: await appDatabase.open(),productsRepository: productRepo, prefs: prefs);
+  final orderRepo = OrderRepository(
+    database: await appDatabase.open(),
+    productsRepository: productRepo,
+    prefs: prefs,
+  );
   await orderRepo.init();
   //services
   productService = ProductService(productRepo);
   orderService = OrderService(repository: orderRepo);
-  
+
   runApp(const MyApp());
 }
 
@@ -85,12 +89,15 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
         onTap: (index) => setState(() => _currentIndex = index),
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.table_restaurant),
+            icon: Icon(Icons.table_restaurant, size: 32),
             label: 'Tables',
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.menu_book), label: 'Menu'),
           BottomNavigationBarItem(
-            icon: Icon(Icons.payments),
+            icon: Icon(Icons.menu_book, size: 32),
+            label: 'Menu',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.payments, size: 32),
             label: 'Payments',
           ),
         ],

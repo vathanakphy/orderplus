@@ -50,7 +50,7 @@ class OrderDetails extends StatelessWidget {
                         : "Customer",
                   ),
                   Text(
-                    "#Order ${order.tableNumber != -1 ? order.tableNumber : 'N/A'}",
+                    "#Order ${order.id}",
                     style: TextStyle(color: Colors.grey[700]),
                   ),
                 ],

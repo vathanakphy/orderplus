@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 
 class ProductTile extends StatelessWidget {
   final String title;
@@ -38,8 +38,8 @@ class ProductTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(12),
-            child: flexibleImage(
-              imagePath,
+            child: FlexibleImage(
+              imagePath: imagePath,
               width: 75,
               height: 75,
               fit: BoxFit.cover,

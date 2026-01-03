@@ -41,12 +41,11 @@ class _SearchAppBarState extends State<SearchAppBar> {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         if (!_isSearching && widget.backButton != null) widget.backButton!,
-        const SizedBox(width: 8),
-        // Title or nothing when searching
         if (!_isSearching)
-          Expanded(
+          Container(
             child:
                 widget.titleWidget ??
                 (widget.title != null

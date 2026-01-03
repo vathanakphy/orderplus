@@ -80,13 +80,6 @@ class _SelectionBarState extends State<SelectionBar> {
                     decoration: BoxDecoration(
                       color: selectedBg,
                       borderRadius: BorderRadius.circular(40),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
                     ),
                   ),
                 ),

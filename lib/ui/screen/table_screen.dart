@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 import '../widget/cards/table_card.dart';
 import 'order_screen.dart';
 
@@ -93,8 +93,8 @@ class _TableScreenState extends State<TableScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Flexible(
-                child: flexibleImage(
-                  "assets/app_logo.png",
+                child: FlexibleImage(
+                  imagePath: "assets/app_logo.png",
                   fit: BoxFit.fitWidth,
                   width: 150,
                 ),

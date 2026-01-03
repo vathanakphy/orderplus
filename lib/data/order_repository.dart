@@ -1,5 +1,8 @@
 import 'package:orderplus/data/product_repository.dart';
+import 'package:orderplus/domain/model/category.dart';
 import 'package:orderplus/domain/model/order.dart';
+import 'package:orderplus/domain/model/order_item.dart';
+import 'package:orderplus/domain/model/product.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqlite_api.dart';
 
@@ -51,13 +54,23 @@ class OrderRepository {
       for (var itemMap in itemsMaps) {
         final productId = itemMap['productId'] as int;
         final product = productsRepository.getProductById(productId);
-        if (product != null) {
-          order.addItem(
-            product,
-            itemMap['quantity'] as int,
+        order.loadItemFromDB(
+          OrderItem(
+            product:
+                product ??
+                Product(
+                  id: productId,
+                  name: 'Deleted product',
+                  price: itemMap['priceAtOrder'] as double,
+                  imageUrl: '',
+                  category: Category(id: -1, name: 'Unknown'),
+                  isAvailable: false,
+                ),
+            quantity: itemMap['quantity'] as int,
+            priceAtOrder: itemMap['priceAtOrder'] as double,
             note: itemMap['note'] as String?,
-          );
-        }
+          ),
+        );
       }
       orders.add(order);
     }

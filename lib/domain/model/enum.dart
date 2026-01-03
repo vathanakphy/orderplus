@@ -1,6 +1,6 @@
 enum OrderStatus {
   queued,
-  served,
+  ready,
   cancelled,
 }
 

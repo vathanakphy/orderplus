@@ -1,5 +1,6 @@
 import 'package:orderplus/data/order_repository.dart';
 import 'package:orderplus/data/product_repository.dart';
+import 'package:orderplus/domain/model/category.dart';
 import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/model/product.dart';
 
@@ -9,24 +10,93 @@ import 'package:orderplus/domain/model/product.dart';
 Future<void> seedProducts(ProductRepository repo) async {
   const img = 'assets/burgur.png';
 
-  final products = <Product>[
-    Product(id: 1, name: 'Classic Burger', price: 3.99, imageUrl: img, category: 'Burger'),
-    Product(id: 2, name: 'Cheese Lover', price: 4.49, imageUrl: img, category: 'Burger'),
-    Product(id: 3, name: 'Margherita Pizza', price: 6.99, imageUrl: img, category: 'Pizza'),
-    Product(id: 4, name: 'Pepperoni Pizza', price: 7.49, imageUrl: img, category: 'Pizza'),
-    Product(id: 5, name: 'Veggie Delight', price: 6.79, imageUrl: img, category: 'Pizza'),
-    Product(id: 6, name: 'Cola Drink', price: 1.99, imageUrl: img, category: 'Drinks'),
-    Product(id: 7, name: 'Lemonade', price: 2.49, imageUrl: img, category: 'Drinks'),
-    Product(id: 8, name: 'Iced Tea', price: 2.29, imageUrl: img, category: 'Drinks'),
-    Product(id: 9, name: 'Chocolate Cake', price: 3.99, imageUrl: img, category: 'Dessert'),
-    Product(id: 10, name: 'Ice Cream Sundae', price: 4.49, imageUrl: img, category: 'Dessert'),
-  ];
+  // Define categories first
+  final categoryNames = ['Burger', 'Pizza', 'Drinks', 'Dessert'];
 
+  // Ensure categories exist in DB
+  final categoryMap = <String, Category>{};
+  for (final name in categoryNames) {
+    await repo.addCategory(name);
+    categoryMap[name] = repo.getCategoryByName(name)!;
+  }
+
+  // Define products with category objects
+  final products = <Product>[
+    Product(
+      id: 1,
+      name: 'Classic Burger',
+      price: 3.99,
+      imageUrl: img,
+      category: categoryMap['Burger']!,
+    ),
+    Product(
+      id: 2,
+      name: 'Cheese Lover',
+      price: 4.49,
+      imageUrl: img,
+      category: categoryMap['Burger']!,
+    ),
+    Product(
+      id: 3,
+      name: 'Margherita Pizza',
+      price: 6.99,
+      imageUrl: img,
+      category: categoryMap['Pizza']!,
+    ),
+    Product(
+      id: 4,
+      name: 'Pepperoni Pizza',
+      price: 7.49,
+      imageUrl: img,
+      category: categoryMap['Pizza']!,
+    ),
+    Product(
+      id: 5,
+      name: 'Veggie Delight',
+      price: 6.79,
+      imageUrl: img,
+      category: categoryMap['Pizza']!,
+    ),
+    Product(
+      id: 6,
+      name: 'Cola Drink',
+      price: 1.99,
+      imageUrl: img,
+      category: categoryMap['Drinks']!,
+    ),
+    Product(
+      id: 7,
+      name: 'Lemonade',
+      price: 2.49,
+      imageUrl: img,
+      category: categoryMap['Drinks']!,
+    ),
+    Product(
+      id: 8,
+      name: 'Iced Tea',
+      price: 2.29,
+      imageUrl: img,
+      category: categoryMap['Drinks']!,
+    ),
+    Product(
+      id: 9,
+      name: 'Chocolate Cake',
+      price: 3.99,
+      imageUrl: img,
+      category: categoryMap['Dessert']!,
+    ),
+    Product(
+      id: 10,
+      name: 'Ice Cream Sundae',
+      price: 4.49,
+      imageUrl: img,
+      category: categoryMap['Dessert']!,
+    ),
+  ];
+  // Insert products
   for (final p in products) {
     await repo.add(p);
   }
-
-  await repo.saveCategories(products.map((p) => p.category).toSet().toList());
 }
 
 // --------------------
@@ -57,7 +127,7 @@ Future<void> seedOrders(OrderRepository repo, List<Product> products) async {
   order3.addItem(products[7], 2); // Iced Tea (index 7)
   order3
     ..markPaid()
-    ..markServed();
+    ..markReady();
 
   // Add orders to repository
   repo.addOrder(order1);
@@ -69,7 +139,10 @@ Future<void> seedOrders(OrderRepository repo, List<Product> products) async {
 // --------------------
 // Seed All Data
 // --------------------
-Future<void> seedAllData(ProductRepository productRepo, OrderRepository orderRepo) async {
+Future<void> seedAllData(
+  ProductRepository productRepo,
+  OrderRepository orderRepo,
+) async {
   await seedProducts(productRepo);
 
   // Access products by index after seeding

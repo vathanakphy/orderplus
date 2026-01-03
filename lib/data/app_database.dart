@@ -8,11 +8,17 @@ class AppDatabase {
 
   Future<Database> open() async {
     final path = join(await getDatabasesPath(), dbPath);
-
     return await openDatabase(
       path,
       version: 1,
       onCreate: (db, version) async {
+        await db.execute('''
+          CREATE TABLE categories(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            isActive INTEGER
+          )
+        ''');
         await db.execute('''
           CREATE TABLE products(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -20,8 +26,9 @@ class AppDatabase {
             description TEXT,
             price REAL,
             imageUrl TEXT,
-            category TEXT,
-            isAvailable INTEGER
+            categoryId INTEGER NOT NULL,
+            isAvailable INTEGER,
+            FOREIGN KEY (categoryId) REFERENCES categories(id)
           )
         ''');
 

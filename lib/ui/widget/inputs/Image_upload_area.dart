@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 
 class ImageUploadArea extends StatelessWidget {
-  final Color fillColor;
   final String? imagePath;
   final Function(String) onImageSelected;
 
   const ImageUploadArea({
     super.key,
-    required this.fillColor,
     this.imagePath,
     required this.onImageSelected,
   });
@@ -64,7 +62,7 @@ class ImageUploadArea extends StatelessWidget {
         height: 180,
         width: double.infinity,
         decoration: BoxDecoration(
-          color: fillColor,
+          color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(color: Colors.grey, width: 2),
         ),
@@ -92,7 +90,7 @@ class ImageUploadArea extends StatelessWidget {
                 children: [
                   ClipRRect(
                     borderRadius: BorderRadius.circular(16),
-                    child: flexibleImage(imagePath!),
+                    child: FlexibleImage(imagePath: imagePath!),
                   ),
                   Positioned(
                     bottom: 8,

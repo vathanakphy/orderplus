@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:orderplus/domain/utils/flexible_image.dart';
+import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 import 'package:orderplus/ui/widget/inputs/quantity_button.dart';
 
 class OrderItemTile extends StatelessWidget {
@@ -33,7 +33,7 @@ class OrderItemTile extends StatelessWidget {
             color: Colors.grey[200],
             child: imagePath == null
                 ? const Icon(Icons.fastfood, color: Colors.grey)
-                : flexibleImage(imagePath!),
+                : FlexibleImage(imagePath: imagePath!),
           ),
         ),
         const SizedBox(width: 12),
