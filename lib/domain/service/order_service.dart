@@ -26,6 +26,50 @@ class OrderService {
     }
   }
 
+  double getTotalEarningsByDate(DateTime date) {
+    final ordersByDate = _repository.orders.where((order) {
+      final orderDate = order.createdAt;
+      return orderDate.year == date.year &&
+          orderDate.month == date.month &&
+          orderDate.day == date.day &&
+          order.paymentStatus == PaymentStatus.paid;
+    });
+
+    double total = 0.0;
+    for (var order in ordersByDate) {
+      total += order.totalAmount;
+    }
+    return total;
+  }
+
+  double getTotalEarningsByMonth(DateTime date) {
+    final ordersByMonth = _repository.orders.where((order) {
+      final orderDate = order.createdAt;
+      return orderDate.year == date.year &&
+          orderDate.month == date.month &&
+          order.paymentStatus == PaymentStatus.paid;
+    });
+
+    double total = 0.0;
+    for (var order in ordersByMonth) {
+      total += order.totalAmount;
+    }
+    return total;
+  }
+  double getTotalEarningsByYear(DateTime date) {
+    final ordersByYear = _repository.orders.where((order) {
+      final orderDate = order.createdAt;
+      return orderDate.year == date.year &&
+          order.paymentStatus == PaymentStatus.paid;
+    });
+
+    double total = 0.0;
+    for (var order in ordersByYear) {
+      total += order.totalAmount;
+    }
+    return total;
+  }
+
   int getQuantity(int tableId, Product product) {
     final item = cart.firstWhere(
       (i) => i.product.id == product.id,
