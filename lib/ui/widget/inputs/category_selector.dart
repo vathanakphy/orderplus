@@ -46,17 +46,16 @@ class CategorySelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final uniqueCategories = categories.toSet().toList();
     return Row(
       children: [
         Expanded(
           child: DropdownButton<String>(
             isExpanded: true,
-            value: uniqueCategories.contains(selectedCategory)
+            value: categories.contains(selectedCategory)
                 ? selectedCategory
                 : null,
             hint: const Text('Select category'),
-            items: uniqueCategories.map((cat) {
+            items: categories.map((cat) {
               return DropdownMenuItem(value: cat, child: Text(cat));
             }).toList(),
             onChanged: (value) {

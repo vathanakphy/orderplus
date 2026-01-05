@@ -159,7 +159,7 @@ class _MenuScreenState extends State<MenuScreen> {
                                             category.name,
                                             categoryController.text,
                                           );
-                                          Navigator.pop(context);
+                                          if (context.mounted) Navigator.pop(context);
                                           setState(() {});
                                         },
                                         child: const Text('Save'),

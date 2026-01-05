@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:orderplus/domain/utils/crop_image.dart';
 import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 
 class ImageUploadArea extends StatelessWidget {
@@ -30,7 +31,10 @@ class ImageUploadArea extends StatelessWidget {
                     source: ImageSource.camera,
                   );
                   if (image != null) {
-                    onImageSelected(image.path);
+                    final croppedFile = await cropImage(image.path);
+                    if (croppedFile != null) {
+                      onImageSelected(croppedFile.path);
+                    }
                   }
                 },
               ),
@@ -43,7 +47,10 @@ class ImageUploadArea extends StatelessWidget {
                     source: ImageSource.gallery,
                   );
                   if (image != null) {
-                    onImageSelected(image.path);
+                    final croppedFile = await cropImage(image.path);
+                    if (croppedFile != null) {
+                      onImageSelected(croppedFile.path);
+                    }
                   }
                 },
               ),
@@ -59,8 +66,7 @@ class ImageUploadArea extends StatelessWidget {
     return GestureDetector(
       onTap: () => _showImagePickerOptions(context),
       child: Container(
-        height: 180,
-        width: double.infinity,
+        height: 200,
         decoration: BoxDecoration(
           color: Theme.of(context).scaffoldBackgroundColor,
           borderRadius: BorderRadius.circular(16),
@@ -88,10 +94,7 @@ class ImageUploadArea extends StatelessWidget {
             : Stack(
                 fit: StackFit.expand,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: FlexibleImage(imagePath: imagePath!),
-                  ),
+                  FlexibleImage(imagePath: imagePath!, fit: BoxFit.contain),
                   Positioned(
                     bottom: 8,
                     right: 8,

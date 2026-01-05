@@ -39,7 +39,7 @@ class FlexibleImage extends StatelessWidget {
         fit: fit,
         width: width,
         height: height,
-        gaplessPlayback: true, 
+        gaplessPlayback: true,
         errorBuilder: (_, __, ___) => fallback,
       );
     }
