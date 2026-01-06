@@ -1,122 +1,60 @@
 import 'package:flutter/material.dart';
 
-class SelectionBar extends StatefulWidget {
+class SelectionBar extends StatelessWidget {
   final List<String> items;
-  final ValueChanged<int>? onItemSelected;
-  final int initialIndex;
+  final String selectedItem;
+  final ValueChanged<String> onItemSelected;
 
   const SelectionBar({
     super.key,
     required this.items,
-    this.onItemSelected,
-    this.initialIndex = 0,
+    required this.selectedItem,
+    required this.onItemSelected,
   });
 
   @override
-  State<SelectionBar> createState() => _SelectionBarState();
-}
-
-class _SelectionBarState extends State<SelectionBar> {
-  late int _selectedIndex;
-  final ScrollController _scroll = ScrollController();
-
-  @override
-  void initState() {
-    super.initState();
-    _selectedIndex = widget.initialIndex;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    const Color barBackground = Color(0xFFF4EFE9);
-    const Color selectedBg = Colors.white;
-    const Color selectedText = Color(0xFF1D1B20);
-    const Color unselectedText = Color(0xFF9E9E9E);
-    const double barHeight = 40;
-
     return SizedBox(
-      height: barHeight,
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final itemWidths = widget.items.map((t) {
-            final tp = TextPainter(
-              text: TextSpan(
-                text: t,
-                style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+      height: 40,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: items.length,
+        padding: const EdgeInsets.symmetric(horizontal: 4),
+        itemBuilder: (context, index) {
+          final item = items[index];
+          final isSelected = item == selectedItem;
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: GestureDetector(
+              onTap: () => onItemSelected(item),
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 8,
+                ),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? Theme.of(context).primaryColor
+                      : Colors.grey.shade200,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected
+                        ? Theme.of(context).primaryColor
+                        : Colors.grey.shade300,
+                    width: 1,
+                  ),
+                ),
+                child: Text(
+                  item,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : Colors.black87,
+                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                    fontSize: 16,
+                  ),
+                ),
               ),
-              textDirection: TextDirection.ltr,
-            )..layout();
-            return tp.width + 32;
-          }).toList();
-
-          final totalWidth = itemWidths.fold(0.0, (a, b) => a + b);
-          final useScroll = totalWidth > constraints.maxWidth;
-
-          final fixedWidth =
-              useScroll ? null : constraints.maxWidth / widget.items.length;
-
-          double offsetX = 0;
-          for (int i = 0; i < _selectedIndex; i++) {
-            offsetX += fixedWidth ?? itemWidths[i];
-          }
-          final selectedWidth = fixedWidth ?? itemWidths[_selectedIndex];
-
-          return Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: barBackground,
-              borderRadius: BorderRadius.circular(50),
-            ),
-            child: Stack(
-              children: [
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOutCubic,
-                  left: offsetX,
-                  top: 0,
-                  bottom: 0,
-                  width: selectedWidth,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: selectedBg,
-                      borderRadius: BorderRadius.circular(40),
-                    ),
-                  ),
-                ),
-                SingleChildScrollView(
-                  controller: _scroll,
-                  scrollDirection: Axis.horizontal,
-                  physics: useScroll
-                      ? const BouncingScrollPhysics()
-                      : const NeverScrollableScrollPhysics(),
-                  child: Row(
-                    children: List.generate(widget.items.length, (index) {
-                      final isSelected = index == _selectedIndex;
-                      return SizedBox(
-                        width: fixedWidth ?? itemWidths[index],
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(40),
-                          onTap: () {
-                            setState(() => _selectedIndex = index);
-                            widget.onItemSelected?.call(index);
-                          },
-                          child: Center(
-                            child: Text(
-                              widget.items[index],
-                              style: TextStyle(
-                                fontSize: 15,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    isSelected ? selectedText : unselectedText,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }),
-                  ),
-                ),
-              ],
             ),
           );
         },

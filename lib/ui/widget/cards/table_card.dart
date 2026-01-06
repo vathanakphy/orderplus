@@ -19,66 +19,75 @@ class TableCard extends StatelessWidget {
     this.statusColor,
     this.color,
     this.onDeleteTap,
-    this.showEditOverlay = false, this.icon, this.titleColor = Colors.black,
+    this.showEditOverlay = false,
+    this.icon,
+    this.titleColor = Colors.black,
   });
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        InkWell(
+        GestureDetector(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(24),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(24),
-              border: statusColor != null ? Border.all(color: statusColor!, width: 2) : null,
-              boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 4)],
+              border: statusColor != null
+                  ? Border.all(color: statusColor!, width: 2)
+                  : null,
               color: color ?? Colors.white,
             ),
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (icon != null) ...[
-                    Icon(icon, size: 40, color: statusColor ?? Colors.black54),
-                    const SizedBox(height: 8),
-                  ],
+                  if (icon != null)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Icon(
+                        icon,
+                        size: 40,
+                        color: statusColor ?? Colors.black54,
+                      ),
+                    ),
                   Text(
                     label,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18,color:titleColor ),
-                  ),
-                  if (statusLabel != null && statusColor != null) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      statusLabel!,
-                      style: TextStyle(fontWeight: FontWeight.bold, color: statusColor),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      color: titleColor,
                     ),
-                  ],
+                  ),
+                  if (statusLabel != null && statusColor != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        statusLabel!,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: statusColor,
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
           ),
         ),
-        // Trash icon overlay
         if (showEditOverlay && onDeleteTap != null)
           Positioned(
             top: 4,
             right: 4,
-            child: InkWell(
+            child: GestureDetector(
               onTap: onDeleteTap,
-              borderRadius: BorderRadius.circular(20),
               child: Container(
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
                   color: Colors.red,
                 ),
                 padding: const EdgeInsets.all(6),
-                child: const Icon(
-                  Icons.delete,
-                  size: 20,
-                  color: Colors.white,
-                ),
+                child: const Icon(Icons.delete, size: 20, color: Colors.white),
               ),
             ),
           ),

@@ -42,7 +42,6 @@ class ProductTile extends StatelessWidget {
               imagePath: imagePath,
               width: 75,
               height: 75,
-              fit: BoxFit.cover,
             ),
           ),
           const SizedBox(width: 12),

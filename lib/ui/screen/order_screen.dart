@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:orderplus/domain/model/category.dart';
 import 'package:orderplus/domain/model/order_item.dart';
 import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
-import '../widget/inputs/category_filter.dart';
+import '../widget/inputs/selection_bar.dart';
 import '../widget/cards/product_card.dart';
 import '../widget/layout/order_form.dart';
 import '../widget/inputs/search_app_bar.dart';
@@ -26,7 +25,7 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-  Category _selectedCategory = Category(id: 0, name: "All");
+  String _selectedCategory = "All";
   String _searchQuery = "";
 
   void _addToCart(Product product) {
@@ -67,8 +66,9 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final categories = widget.productService.getAllCategoriesString();
     List<Product> filteredProducts = widget.productService.filterProducts(
-      category: _selectedCategory,
+      category: widget.productService.getCategoryByName(_selectedCategory),
       searchQuery: _searchQuery,
     );
     final cartItems = widget.orderService.getCartItems();
@@ -99,10 +99,10 @@ class _OrderScreenState extends State<OrderScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      CategoryFilter(
-                        categories: widget.productService.getAllCategories(),
-                        selectedCategory: _selectedCategory,
-                        onCategorySelected: (category) {
+                      SelectionBar(
+                        items: categories,
+                        selectedItem: _selectedCategory,
+                        onItemSelected: (category) {
                           setState(() => _selectedCategory = category);
                         },
                       ),

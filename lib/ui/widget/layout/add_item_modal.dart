@@ -127,7 +127,6 @@ class _AddItemModalState extends State<AddItemModal> {
                   onPressed: () => Navigator.pop(context),
                 ),
               ),
-
               const SizedBox(height: 10),
               StatefulBuilder(
                 builder: (context, setState) => ImageUploadArea(

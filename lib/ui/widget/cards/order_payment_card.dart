@@ -39,7 +39,6 @@ class OrderPaymentCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 16),
-
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,7 +71,6 @@ class OrderPaymentCard extends StatelessWidget {
                 ],
               ),
             ),
-
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [

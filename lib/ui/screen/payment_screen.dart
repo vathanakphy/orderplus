@@ -5,11 +5,11 @@ import 'package:orderplus/domain/model/enum.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/ui/widget/cards/earning_card.dart';
 import 'package:orderplus/ui/widget/cards/flexible_image.dart';
+import 'package:orderplus/ui/widget/inputs/selection_bar.dart';
 import 'package:orderplus/ui/widget/inputs/delete_alert.dart';
 import 'package:orderplus/ui/widget/inputs/search_app_bar.dart';
 import '../widget/cards/order_payment_card.dart';
 import '../widget/cards/order_detail.dart';
-import '../widget/inputs/selection_bar.dart';
 
 class PaymentScreen extends StatefulWidget {
   final OrderService orderService;
@@ -21,7 +21,7 @@ class PaymentScreen extends StatefulWidget {
 }
 
 class _PaymentScreenState extends State<PaymentScreen> {
-  PaymentStatus? _selectedPaymentStatus = PaymentStatus.unpaid;
+  String? _selectedPaymentStatus = "Unpaid";
   String _searchQuery = "";
 
   void _confirmPayment(Order order) {
@@ -55,7 +55,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   @override
   Widget build(BuildContext context) {
     final orders = widget.orderService.filterOrders(
-      paymentStatus: _selectedPaymentStatus,
+      paymentStatus: paymentStatusFromString(_selectedPaymentStatus!),
       idQuery: _searchQuery,
       isASC: false,
     );
@@ -84,20 +84,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               const SizedBox(height: 20),
               SelectionBar(
-                items: const ["All", "Unpaid", "Paid"],
-                initialIndex: _selectedPaymentStatus == null
-                    ? 0
-                    : _selectedPaymentStatus == PaymentStatus.unpaid
-                    ? 1
-                    : 2,
-                onItemSelected: (index) {
+                items: [
+                  "All",
+                  "Unpaid",
+                  "Paid",
+                ],
+                selectedItem: _selectedPaymentStatus??"All",
+                onItemSelected: (status) {
                   setState(() {
-                    _selectedPaymentStatus = switch (index) {
-                      0 => null,
-                      1 => PaymentStatus.unpaid,
-                      2 => PaymentStatus.paid,
-                      _ => null,
-                    };
+                    _selectedPaymentStatus = status;
                   });
                 },
               ),
@@ -107,7 +102,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ],
           ),
         ),
-
         Expanded(
           child: (orders.isEmpty)
               ? Center(
@@ -130,7 +124,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           children: [
                             SlidableAction(
                               onPressed: (context) async {
-                                // Only allow cancel if order is unpaid and not cancelled
                                 if (!order.isPaid && !order.isCancelled) {
                                   final confirmed =
                                       await showDeleteDialog(
