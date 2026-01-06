@@ -8,7 +8,9 @@ import 'package:orderplus/ui/screen/menu_screen.dart';
 import 'package:orderplus/ui/screen/payment_screen.dart';
 import 'package:orderplus/data/order_repository.dart';
 import 'package:orderplus/data/product_repository.dart';
+import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite/sqflite.dart';
 
 late final OrderService orderService;
 late final ProductService productService;
@@ -16,7 +18,7 @@ late final ProductService productService;
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //storage
-  final appDatabase = AppDatabase(dbPath: 'orderplus.db');
+  final appDatabase = AppDatabase(dbPath: join(await getDatabasesPath(), 'orderplus.db'));
   final prefs = await SharedPreferences.getInstance();
   //repositories
   final productRepo = ProductRepository(database: await appDatabase.open());

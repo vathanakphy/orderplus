@@ -125,9 +125,6 @@ Future<void> seedOrders(OrderRepository repo, List<Product> products) async {
   final order3 = Order(id: 3, tableNumber: 3);
   order3.addItem(products[3], 1); // Pepperoni Pizza (index 3)
   order3.addItem(products[7], 2); // Iced Tea (index 7)
-  order3
-    ..markPaid()
-    ..markReady();
 
   // Add orders to repository
   repo.addOrder(order1);

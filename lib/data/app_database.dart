@@ -1,5 +1,4 @@
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 class AppDatabase {
   final String dbPath;
@@ -7,9 +6,8 @@ class AppDatabase {
   AppDatabase({required this.dbPath});
 
   Future<Database> open() async {
-    final path = join(await getDatabasesPath(), dbPath);
     return await openDatabase(
-      path,
+      dbPath,
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
