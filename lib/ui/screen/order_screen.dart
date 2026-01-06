@@ -132,9 +132,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                   return Stack(
                                     children: [
                                       ProductCard(
-                                        id: product.id,
-                                        title: product.name,
-                                        imagePath: product.imageUrl,
+                                        product: product,
                                         onAddTap: () => _addToCart(product),
                                       ),
                                       if (quantity > 0)

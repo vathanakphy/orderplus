@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/model/product.dart';
 import 'package:orderplus/ui/widget/cards/flexible_image.dart';
 
 class ProductCard extends StatelessWidget {
-  final int id;
-  final String title;
-  final String imagePath;
+  final Product product;
   final VoidCallback? onAddTap;
 
   const ProductCard({
     super.key,
-    required this.title,
-    required this.imagePath,
+    required this.product,
     this.onAddTap,
-    required this.id,
   });
 
   @override
@@ -33,7 +30,7 @@ class ProductCard extends StatelessWidget {
             aspectRatio: 1.2,
             child: Stack(
               children: [
-                Positioned.fill(child: FlexibleImage(imagePath: imagePath)),
+                Positioned.fill(child: FlexibleImage(imagePath: product.imageUrl)),
                 Positioned(
                   bottom: 8,
                   right: 8,
@@ -58,7 +55,7 @@ class ProductCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 4),
             child: Text(
-              title,
+              product.name,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
@@ -72,7 +69,7 @@ class ProductCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
             child: Text(
-              "ID: $id",
+              "ID: ${product.id}",
               style: TextStyle(fontSize: 14, color: titleColor),
             ),
           ),
