@@ -7,10 +7,11 @@ class TableCard extends StatelessWidget {
   final Color? color;
   final VoidCallback? onTap;
   final VoidCallback? onDeleteTap;
+  final VoidCallback? onOpenOrderDetails;
   final bool showEditOverlay;
   final IconData? icon;
   final Color? titleColor;
-
+  final bool isBusy;
   const TableCard({
     super.key,
     required this.label,
@@ -22,6 +23,8 @@ class TableCard extends StatelessWidget {
     this.showEditOverlay = false,
     this.icon,
     this.titleColor = Colors.black,
+    this.isBusy = true,
+    this.onOpenOrderDetails,
   });
 
   @override
@@ -75,6 +78,7 @@ class TableCard extends StatelessWidget {
             ),
           ),
         ),
+        
         if (showEditOverlay && onDeleteTap != null)
           Positioned(
             top: 4,
@@ -88,6 +92,22 @@ class TableCard extends StatelessWidget {
                 ),
                 padding: const EdgeInsets.all(6),
                 child: const Icon(Icons.delete, size: 20, color: Colors.white),
+              ),
+            ),
+          ),
+        if (isBusy && !showEditOverlay)
+          Positioned(
+            top: 8,
+            right: 8,
+            child: GestureDetector(
+              onTap: onOpenOrderDetails,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.orange,
+                ),
+                padding: const EdgeInsets.all(6),
+                child: const Icon(Icons.receipt, size: 28, color: Colors.white),
               ),
             ),
           ),

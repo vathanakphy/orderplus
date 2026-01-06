@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:orderplus/domain/model/order.dart';
 import 'package:orderplus/domain/service/order_service.dart';
 import 'package:orderplus/domain/service/product_service.dart';
 import 'package:orderplus/ui/widget/cards/flexible_image.dart';
+import 'package:orderplus/ui/widget/cards/order_detail.dart';
 import '../widget/cards/table_card.dart';
 import 'order_screen.dart';
 
@@ -75,6 +77,34 @@ class _TableScreenState extends State<TableScreen> {
     setState(() {});
   }
 
+  void _confirmPayment(Order order) {
+    widget.orderService.payOrder(order);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text("Payment confirmed successfully!"),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    setState(() {});
+  }
+
+  void _showOrderDetails(Order order) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => OrderDetails(
+        order: order,
+        onConfirmPayment: () {
+          Navigator.pop(context);
+          _confirmPayment(order);
+        },
+      ),
+    );
+  }
+
   Color _getStatusColor(int tableId) =>
       widget.orderService.isTableBusy(tableId) ? Colors.orange : Colors.green;
 
@@ -123,6 +153,7 @@ class _TableScreenState extends State<TableScreen> {
                   icon: Icons.shopping_bag_rounded,
                   titleColor: Colors.white,
                   onTap: () => _openOrder(-1),
+                  isBusy: false,
                 ),
                 ...allTables.map((tableId) {
                   return TableCard(
@@ -132,6 +163,8 @@ class _TableScreenState extends State<TableScreen> {
                     onTap: () => _openOrder(tableId),
                     showEditOverlay: isEditMode,
                     onDeleteTap: () => _deleteTable(tableId),
+                    isBusy: widget.orderService.isTableBusy(tableId),
+                    onOpenOrderDetails: () => _showOrderDetails(widget.orderService.getCurrentOrdersByTable(tableId)!),
                   );
                 }),
               ],
