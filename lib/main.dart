@@ -78,8 +78,8 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
         orderService: widget.orderService,
         productService: widget.productService,
       ),
-      MenuScreen(productService: widget.productService),
       PaymentScreen(orderService: widget.orderService),
+      MenuScreen(productService: widget.productService),
     ];
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -95,12 +95,12 @@ class _MainScreenWrapperState extends State<MainScreenWrapper> {
             label: 'Tables',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.menu_book, size: 32),
-            label: 'Menu',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.payments, size: 32),
             label: 'Payments',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.menu_book, size: 32),
+            label: 'Menu',
           ),
         ],
       ),

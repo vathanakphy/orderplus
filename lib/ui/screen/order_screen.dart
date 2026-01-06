@@ -108,50 +108,55 @@ class _OrderScreenState extends State<OrderScreen> {
                       ),
                       const SizedBox(height: 16),
                       Expanded(
-                        child: GridView.builder(
-                          padding: const EdgeInsets.only(bottom: 90),
-                          itemCount: filteredProducts.length,
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                maxCrossAxisExtent: 220,
-                                mainAxisSpacing: 12,
-                                crossAxisSpacing: 12,
-                                childAspectRatio: 0.80,
-                              ),
-                          itemBuilder: (context, index) {
-                            final product = filteredProducts[index];
-                            final quantity = widget.orderService.getQuantity(
-                              widget.tableId,
-                              product,
-                            );
-                            return Stack(
-                              children: [
-                                ProductCard(
-                                  id: product.id,
-                                  title: product.name,
-                                  imagePath: product.imageUrl,
-                                  onAddTap: () => _addToCart(product),
+                        child: (filteredProducts.isEmpty)
+                            ? Center(
+                                child: Text(
+                                  "No products found.",
+                                  style: Theme.of(context).textTheme.bodyLarge,
                                 ),
-                                if (quantity > 0)
-                                  Positioned(
-                                    top: 8,
-                                    right: 8,
-                                    child: CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: Colors.red,
-                                      child: Text(
-                                        '$quantity',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+                              )
+                            : GridView.builder(
+                                padding: const EdgeInsets.only(bottom: 90),
+                                itemCount: filteredProducts.length,
+                                gridDelegate:
+                                    const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 220,
+                                      mainAxisSpacing: 12,
+                                      crossAxisSpacing: 12,
+                                      childAspectRatio: 0.80,
                                     ),
-                                  ),
-                              ],
-                            );
-                          },
-                        ),
+                                itemBuilder: (context, index) {
+                                  final product = filteredProducts[index];
+                                  final quantity = widget.orderService
+                                      .getQuantity(widget.tableId, product);
+                                  return Stack(
+                                    children: [
+                                      ProductCard(
+                                        id: product.id,
+                                        title: product.name,
+                                        imagePath: product.imageUrl,
+                                        onAddTap: () => _addToCart(product),
+                                      ),
+                                      if (quantity > 0)
+                                        Positioned(
+                                          top: 8,
+                                          right: 8,
+                                          child: CircleAvatar(
+                                            radius: 14,
+                                            backgroundColor: Colors.red,
+                                            child: Text(
+                                              '$quantity',
+                                              style: const TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
+                              ),
                       ),
                     ],
                   ),

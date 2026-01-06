@@ -107,94 +107,103 @@ class _MenuScreenState extends State<MenuScreen> {
               ),
             ),
             Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                itemCount: categories.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == categories.length) {
-                    return const SizedBox(height: 80);
-                  }
-                  final category = categories[index];
-                  final categoryProducts = products
-                      .where((p) => p.category.id == category.id)
-                      .toList();
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            category.name,
-                            style: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () {
-                              categoryController.text = category.name;
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: const Text('Edit Category'),
-                                    content: SizedBox(
-                                      height: 60,
-                                      child: LabeledTextField(
-                                        controller: categoryController,
-                                        hintText: 'Category Name',
-                                        labelColor: Colors.black,
-                                        fillColor: Colors.grey.shade200,
-                                      ),
-                                    ),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          await updateCategory(
-                                            category.name,
-                                            categoryController.text,
-                                          );
-                                          if (context.mounted) Navigator.pop(context);
-                                          setState(() {});
-                                        },
-                                        child: const Text('Save'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                            child: const Icon(
-                              Icons.edit,
-                              size: 20,
-                              color: Colors.blueGrey,
-                            ),
-                          ),
-                        ],
+              child: (products.isEmpty)
+                  ? Center(
+                      child: Text(
+                        "No products found.",
+                        style: Theme.of(context).textTheme.bodyLarge,
                       ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      itemCount: categories.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == categories.length) {
+                          return const SizedBox(height: 80);
+                        }
+                        final category = categories[index];
+                        final categoryProducts = products
+                            .where((p) => p.category.id == category.id)
+                            .toList();
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  category.name,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () {
+                                    categoryController.text = category.name;
+                                    showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: const Text('Edit Category'),
+                                          content: SizedBox(
+                                            height: 60,
+                                            child: LabeledTextField(
+                                              controller: categoryController,
+                                              hintText: 'Category Name',
+                                              labelColor: Colors.black,
+                                              fillColor: Colors.grey.shade200,
+                                            ),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () =>
+                                                  Navigator.pop(context),
+                                              child: const Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () async {
+                                                await updateCategory(
+                                                  category.name,
+                                                  categoryController.text,
+                                                );
+                                                if (context.mounted)
+                                                  Navigator.pop(context);
+                                                setState(() {});
+                                              },
+                                              child: const Text('Save'),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                  child: const Icon(
+                                    Icons.edit,
+                                    size: 20,
+                                    color: Colors.blueGrey,
+                                  ),
+                                ),
+                              ],
+                            ),
 
-                      const SizedBox(height: 12),
-                      for (final product in categoryProducts)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: ProductTile(
-                            title: product.name,
-                            price: product.price,
-                            imagePath: product.imageUrl,
-                            onEdit: () => _editProduct(product),
-                            onDelete: () => _deleteProduct(product),
-                          ),
-                        ),
-                      const SizedBox(height: 25),
-                    ],
-                  );
-                },
-              ),
+                            const SizedBox(height: 12),
+                            for (final product in categoryProducts)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: ProductTile(
+                                  title: product.name,
+                                  price: product.price,
+                                  imagePath: product.imageUrl,
+                                  onEdit: () => _editProduct(product),
+                                  onDelete: () => _deleteProduct(product),
+                                ),
+                              ),
+                            const SizedBox(height: 25),
+                          ],
+                        );
+                      },
+                    ),
             ),
           ],
         ),
