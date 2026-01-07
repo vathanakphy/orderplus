@@ -79,7 +79,7 @@ class OrderService {
     return item.quantity;
   }
 
-  List<OrderItem> getCartItems() => List.from(cart);
+  List<OrderItem> getCartItems() => cart;
 
   void clearCart() => cart.clear();
 
