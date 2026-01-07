@@ -28,10 +28,6 @@ class Order {
   PaymentStatus get paymentStatus => _paymentStatus;
 
   void addItem(Product product, int quantity, {String? note}) {
-    if (!product.isAvailable) {
-      throw Exception('Product is not available');
-    }
-
     _items.add(
       OrderItem(
         product: product,
