@@ -70,7 +70,7 @@ class OrderService {
     return total;
   }
 
-  int getQuantity(int tableId, Product product) {
+  int getQuantity(Product product) {
     final item = cart.firstWhere(
       (i) => i.product.id == product.id,
       orElse: () =>

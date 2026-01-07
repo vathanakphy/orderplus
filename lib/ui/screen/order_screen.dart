@@ -128,7 +128,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                 itemBuilder: (context, index) {
                                   final product = filteredProducts[index];
                                   final quantity = widget.orderService
-                                      .getQuantity(widget.tableId, product);
+                                      .getQuantity(product);
                                   return Stack(
                                     children: [
                                       ProductCard(
