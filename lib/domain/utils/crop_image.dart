@@ -15,12 +15,6 @@ Future<XFile?> cropImage(String imagePath) async {
           cropGridStrokeWidth: 1,
           showCropGrid: true,
         ),
-        IOSUiSettings(
-          title: 'Crop Image',
-          aspectRatioLockEnabled: true, // keeps square
-          rotateButtonsHidden: false, // allow rotation
-          resetButtonHidden: false, // allow reset
-        ),
       ],
     );
 
